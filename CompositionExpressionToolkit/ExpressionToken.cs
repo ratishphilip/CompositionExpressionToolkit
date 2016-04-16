@@ -4,6 +4,10 @@ using System.Text;
 
 namespace CompositionExpressionToolkit
 {
+    /// <summary>
+    /// Defines the various types of brackets that
+    /// can be used in the expression string
+    /// </summary>
     internal enum BracketType
     {
         None = 0,               //
@@ -18,9 +22,20 @@ namespace CompositionExpressionToolkit
         QuotesXml = 9           // &quot; &quot;
     }
 
+    /// <summary>
+    /// Represents the base class for tokens, which are
+    /// the building blocks for generating the string
+    /// from an Expression
+    /// </summary>
     internal abstract class ExpressionToken
     {
+        #region APIs
+
         public abstract void Write(StringBuilder sb);
+
+        #endregion
+
+        #region Overrides
 
         public override string ToString()
         {
@@ -28,33 +43,59 @@ namespace CompositionExpressionToolkit
             Write(sb);
             return sb.ToString();
         }
+
+        #endregion
     }
 
+    /// <summary>
+    /// An expression token which encapsulates a string
+    /// </summary>
     internal class SimpleExpressionToken : ExpressionToken
     {
+        #region Fields
+
         public readonly string Text;
+
+        #endregion
+
+        #region Construction / Initialization
 
         public SimpleExpressionToken(string text)
         {
             Text = text;
         }
 
+        #endregion
+
+        #region Overrides
+
         public override void Write(StringBuilder sb)
         {
             sb.Append(Text);
         }
+
+        #endregion
     }
 
+    /// <summary>
+    /// An expression token which is a container for expression tokens
+    /// </summary>
     internal class CompositeExpressionToken : ExpressionToken
     {
+        #region Fields
+
         private string _openBracket;
         private string _closeBracket;
         private BracketType _bracketType;
         private readonly bool _addCommas;
         private readonly List<ExpressionToken> _tokens;
-            
-        public CompositeExpressionToken(BracketType bracketType = BracketType.None, 
-            bool addCommas = false)
+
+        #endregion
+
+        #region Construction / Initialization
+
+        public CompositeExpressionToken(BracketType bracketType = BracketType.None,
+                    bool addCommas = false)
         {
             SetBrackets(bracketType);
             _addCommas = addCommas;
@@ -78,6 +119,10 @@ namespace CompositionExpressionToolkit
         {
             _tokens.AddRange(tokens.Where(t => t != null));
         }
+
+        #endregion
+
+        #region APIs
 
         public void SetBrackets(BracketType bracketType)
         {
@@ -150,6 +195,10 @@ namespace CompositionExpressionToolkit
             return _tokens.Count(t => t != null);
         }
 
+        #endregion
+
+        #region Overrides
+
         public override void Write(StringBuilder sb)
         {
             var flag = (_bracketType != BracketType.None);
@@ -174,5 +223,7 @@ namespace CompositionExpressionToolkit
                 sb.Append(_closeBracket);
             }
         }
+
+        #endregion
     }
 }

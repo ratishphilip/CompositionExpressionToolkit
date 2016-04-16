@@ -3,6 +3,11 @@ using Windows.UI;
 
 namespace CompositionExpressionToolkit
 {
+    /// <summary>
+    /// A dummy class which encapsulates common methods that
+    /// can be used to create an Expression for subclasses of
+    /// CompositionAnimation
+    /// </summary>
     public class CompositionExpressionContext
     {
         private CompositionExpressionContext()

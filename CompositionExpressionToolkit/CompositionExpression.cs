@@ -8,7 +8,11 @@ namespace CompositionExpressionToolkit
     /// </summary>
     public class CompositionExpression
     {
+        #region Properties
+
         public string Expression { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
+
+        #endregion
     }
 }
