@@ -125,6 +125,7 @@ namespace CompositionExpressionToolkit
                 }
 
                 MethodInfo methodInfo;
+                // Find matching Setxxx method for the given type
                 if (SetMethods.TryGetValue(type, out methodInfo) ||
                     ((type.BaseType() != null) && SetMethods.TryGetValue(type.BaseType(), out methodInfo)))
                 {

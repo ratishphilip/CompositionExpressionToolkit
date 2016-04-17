@@ -54,10 +54,11 @@ namespace CompositionExpressionToolkit
             }
 
             MethodInfo methodInfo;
+            // Find matching Insertxxx method for the given type
             if (InsertMethods.TryGetValue(type, out methodInfo) ||
                 ((type.BaseType() != null) && InsertMethods.TryGetValue(type.BaseType(), out methodInfo)))
             {
-                // Once a matching TryGetxxx method is found, Invoke it!
+                // Once a matching Insertxxx method is found, Invoke it!
                 methodInfo.Invoke(propertySet, new[] { key, input });
             }
 
@@ -81,6 +82,7 @@ namespace CompositionExpressionToolkit
             }
 
             MethodInfo methodInfo;
+            // Find matching TryGetxxx method for the given type
             if (TryGetMethods.TryGetValue(type, out methodInfo) ||
                 ((type.BaseType() != null) && TryGetMethods.TryGetValue(type.BaseType(), out methodInfo)))
             {
@@ -145,6 +147,7 @@ namespace CompositionExpressionToolkit
                 }
 
                 MethodInfo methodInfo;
+                // Find matching Insertxxx method for the given type
                 if (InsertMethods.TryGetValue(type, out methodInfo) ||
                     ((type.BaseType() != null) && InsertMethods.TryGetValue(type.BaseType(), out methodInfo)))
                 {
