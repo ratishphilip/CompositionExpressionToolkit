@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>CompositionExpressionToolkit</id>
+    <version>0.1.0.0</version>
+    <title>CompositionExpressionToolkit</title>
+    <authors>Ratish Philip</authors>
+    <owners>Ratish Philip</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/ratishphilip/CompositionExpressionToolkit</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>A Toolkit for creating Expression strings for CompositionAnimation through lambda expressions</description>
+    <releaseNotes>Initial version 0.1 release.</releaseNotes>
+    <copyright>Copyright 2016 Ratish Philip</copyright>
+  </metadata>
+</package>
