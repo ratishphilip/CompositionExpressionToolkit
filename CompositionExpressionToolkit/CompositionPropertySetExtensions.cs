@@ -12,6 +12,7 @@ namespace CompositionExpressionToolkit
 
         private static readonly Dictionary<Type, MethodInfo> InsertMethods;
         private static readonly Dictionary<Type, MethodInfo> TryGetMethods;
+        private static readonly Type[] Floatables;
 
         #endregion
 
@@ -32,6 +33,18 @@ namespace CompositionExpressionToolkit
                                 .ToDictionary(m => m.GetParameters()[1].ParameterType.GetElementType(),
                                               m => m);
 
+            Floatables = new[]{
+                                  typeof(short),
+                                  typeof(ushort),
+                                  typeof(int),
+                                  typeof(uint),
+                                  typeof(long),
+                                  typeof(ulong),
+                                  typeof(char),
+                                  typeof(double),
+                                  typeof(bool),
+                                  typeof(decimal)
+                              };
         }
 
         #endregion
@@ -126,19 +139,11 @@ namespace CompositionExpressionToolkit
                 var type = property.PropertyType;
                 var parameter = property.GetValue(input);
 
-                if ((type == typeof(short)) ||
-                    (type == typeof(ushort)) ||
-                    (type == typeof(int)) ||
-                    (type == typeof(uint)) ||
-                    (type == typeof(long)) ||
-                    (type == typeof(ulong)) ||
-                    (type == typeof(char)) ||
-                    (type == typeof(double)) ||
-                    (type == typeof(bool)) ||
-                    (type == typeof(decimal)))
+                // Can the type be converted to float?
+                if (Floatables.Contains(type))
                 {
                     type = typeof(float);
-                    parameter = (float)parameter;
+                    parameter = Convert.ToSingle(parameter);
                 }
 
                 while (!type.IsPublic())

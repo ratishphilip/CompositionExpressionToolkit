@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Numerics;
 using System.Reflection;
+using Windows.Foundation;
 using Windows.UI.Composition;
 
 namespace CompositionExpressionToolkit
@@ -15,6 +17,7 @@ namespace CompositionExpressionToolkit
         #region Fields
 
         private static readonly Dictionary<Type, MethodInfo> SetMethods;
+        private static readonly Type[] Floatables;
 
         #endregion
 
@@ -27,6 +30,19 @@ namespace CompositionExpressionToolkit
                                .Where(m => m.Name.StartsWith("Set") && m.Name.EndsWith("Parameter"))
                                .ToDictionary(m => m.GetParameters()[1].ParameterType,
                                              m => m);
+
+            Floatables = new[]{
+                                  typeof(short),
+                                  typeof(ushort),
+                                  typeof(int),
+                                  typeof(uint),
+                                  typeof(long),
+                                  typeof(ulong),
+                                  typeof(char),
+                                  typeof(double),
+                                  typeof(bool),
+                                  typeof(decimal)
+                              };
         }
 
         #endregion
@@ -99,24 +115,25 @@ namespace CompositionExpressionToolkit
         /// <returns>Animation</returns>
         public static T SetParameters<T>(this T animation, Dictionary<string, object> parameters) where T : CompositionAnimation
         {
+            Dictionary<string, object> newParameters = new Dictionary<string, object>();
+
             foreach (var key in parameters.Keys)
             {
                 var parameter = parameters[key];
                 var type = parameter.GetType();
 
-                if ((type == typeof(short)) ||
-                    (type == typeof(ushort)) ||
-                    (type == typeof(int)) ||
-                    (type == typeof(uint)) ||
-                    (type == typeof(long)) ||
-                    (type == typeof(ulong)) ||
-                    (type == typeof(char)) ||
-                    (type == typeof(double)) ||
-                    (type == typeof(bool)) ||
-                    (type == typeof(decimal)))
+                // Can the type be converted to float?
+                if (Floatables.Contains(type))
                 {
                     type = typeof(float);
-                    parameter = (float)parameter;
+                    parameter = Convert.ToSingle(parameter);
+                }
+
+                if (type == typeof(Point))
+                {
+                    var point = (Point)parameter;
+                    parameter = new Vector3((float)point.X, (float)point.Y, 0);
+                    type = typeof(Vector3);
                 }
 
                 while (!type.IsPublic())
@@ -135,9 +152,24 @@ namespace CompositionExpressionToolkit
                 else
                 {
                     // If no matching method is found, then convert the parameter into a CompositionPropertySet
-                    parameters[key] = CompositionPropertySetExtensions.ToPropertySet(parameters[key], animation.Compositor);
-                    animation.SetReferenceParameter(key, (CompositionObject)parameters[key]);
+                    // Since we cannot modify the parameters dictionary while we are inside the loop, add the key and the
+                    // CompositionPropertySet to the newParameters dictionary, so that the parameters dictionary can be updated 
+                    // once the loop completes
+                    newParameters[key] = CompositionPropertySetExtensions.ToPropertySet(parameters[key], animation.Compositor);
                 }
+            }
+
+            // If any key value pairs exist in the newParameters dictionary, then update the parameters dictionary
+            if (newParameters.Any())
+            {
+                foreach (var item in newParameters)
+                {
+                    parameters[item.Key] = item.Value;
+                    // Set item.Value as the Reference Parameter for the animation
+                    animation.SetReferenceParameter(item.Key, (CompositionObject)parameters[item.Key]);
+                }
+                // Clean up newParameters dictionary
+                newParameters.Clear();
             }
 
             return animation;
