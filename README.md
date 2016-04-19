@@ -2,7 +2,27 @@
 A toolkit for setting the Expression in **CompositionAnimation** via **Lambda Expressions**. It contains a **CompositionExpressionEngine** which converts the Lambda expression to an appropriate string that can be used as an input for setting the **ExpressionAnimation.Expression** property or inserting an ExpressionKeyFrame in a **KeyFrameAnimation**.
 
 # Usage
-(tbd)
+
+## ExpressionAnimationExtensions
+
+## ScopedBatchHelper
+
+This class contains a method **CreateScopedBatch** creates a scoped batch and handles the completed event the subscribing and unsubscribing process internally.
+
+Example usage:
+
+
+```
+ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation,
+       () => // Action
+       {
+           transitionVisual.StartAnimation("Scale.XY", _scaleUpAnimation);
+       },
+       () => // Post Action
+       {
+           BackBtn.IsEnabled = true;
+       });
+```
 
 # Installing from NuGet
 To install CompositionExpressionToolkit, run the following command in the  **Package Manager Console**  
