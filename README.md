@@ -4,6 +4,11 @@ A toolkit for setting the Expression in **CompositionAnimation** via **Lambda Ex
 # Usage
 (tbd)
 
+# Installing from NuGet
+To install CompositionExpressionToolkit, run the following command in the  **Package Manager Console**  
+
+`Install-Package CompositionExpressionToolkit`
+
 # Credits
 The **CompositionExpressionEngine** is based on the <a href="https://github.com/albahari/ExpressionFormatter">ExpressionFormatter</a> project by **Joseph Albahari** (*the legend behind the*  ***LinqPad*** *tool*). 
 
