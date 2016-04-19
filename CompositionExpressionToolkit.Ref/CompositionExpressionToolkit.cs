@@ -99,6 +99,10 @@ namespace CompositionExpressionToolkit
         public static void Insert<T>(this Windows.UI.Composition.CompositionPropertySet propertySet, string key, object input) { }
         public static Windows.UI.Composition.CompositionPropertySet ToPropertySet(object input, Windows.UI.Composition.Compositor compositor) { return default(Windows.UI.Composition.CompositionPropertySet); }
     }
+    public static partial class ScopedBatchHelper
+    {
+        public static void CreateScopedBatch(Windows.UI.Composition.Compositor compositor, Windows.UI.Composition.CompositionBatchTypes batchType, System.Action action, System.Action postAction=null) { }
+    }
     public static partial class TypeExtensions
     {
         public static System.Type BaseType(this System.Type type) { return default(System.Type); }
