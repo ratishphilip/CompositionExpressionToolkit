@@ -9,8 +9,15 @@ A toolkit for setting the Expression in **CompositionAnimation** via **Lambda Ex
 
 This class contains a method **CreateScopedBatch** creates a scoped batch and handles the completed event the subscribing and unsubscribing process internally.
 
-Example usage:
+__API__:
 
+```
+public static void CreateScopedBatch(Compositor compositor, 
+                                     CompositionBatchTypes batchType, 
+                                     Action action, 
+                                     Action postAction = null)
+```
+__Example usage__:
 
 ```
 ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation,
