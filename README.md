@@ -7,11 +7,11 @@ A toolkit for setting the Expression in **CompositionAnimation** via **Lambda Ex
 
 ## ScopedBatchHelper
 
-This class contains a method **CreateScopedBatch** creates a scoped batch and handles the completed event the subscribing and unsubscribing process internally.
+This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the completed event the subscribing and unsubscribing process internally.
 
 __API__:
 
-```
+```C#
 public static void CreateScopedBatch(Compositor compositor, 
                                      CompositionBatchTypes batchType, 
                                      Action action, 
@@ -19,7 +19,7 @@ public static void CreateScopedBatch(Compositor compositor,
 ```
 __Example usage__:
 
-```
+```C#
 ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation,
        () => // Action
        {
