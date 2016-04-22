@@ -22,11 +22,12 @@ __CompositionExpressionToolkit__ provides the following extension methods which 
 public static Dictionary<string, object> SetExpression<T>(this ExpressionAnimation animation,
 			Expression<CompositionLambda<T>> expression);
 
-public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
-			Expression<CompositionLambda<T>> expression);
+public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, 
+	float normalizedProgressKey, Expression<CompositionLambda<T>> expression);
 	
-public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
-            Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction);
+public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, 
+	float normalizedProgressKey, 
+	Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction);
 			
 ```
 
