@@ -1,9 +1,53 @@
 # CompositionExpressionToolkit
-A toolkit for setting the Expression in **CompositionAnimation** via **Lambda Expressions**. It contains a **CompositionExpressionEngine** which converts the Lambda expression to an appropriate string that can be used as an input for setting the **ExpressionAnimation.Expression** property or inserting an ExpressionKeyFrame in a **KeyFrameAnimation**.
+__CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use Windows.UI.Composition features. They include methods for creating statically typed CompositionAnimation expressions, CompositionPropertySet extension methods, helper methods for creating ScopedBatchSets etc.
 
-# Usage
+## CompositionPropertySet extensions
+The <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.compositionpropertyset.aspx">__CompositionPropertySet__</a> class is like a dictionary which stores key-value pairs. As of now, the values can be of type __float__, __Color__, __Matrix3x2__, __Matrix4x4__, __Quaternion__, __Scalar__, __Vector2__, __Vector3__ and __Vector4__. To store and retrieve, __CompositionPropertySet__ has separate __Insert*xxx*__ and __TryGet*xxx*__ methods for each type.  
+__CompositionExpressionToolkit__ provides generic extension methods __Insert<T>__ and __Get<T>__ which makes things simpler.
 
-## ExpressionAnimationExtensions
+```C#
+public static void Insert<T>(this CompositionPropertySet propertySet, string key, object input);
+public static T Get<T>(this CompositionPropertySet propertySet, string key);
+```
+
+## Creating statically typed CompositionAnimation Expressions
+According to MSDN, <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__ExpressionAnimation__</a> and <a href="">__KeyFrameAnimation__</a> use a _mathematical expression_ to specify how the animated value should be calculated each frame. The expressions can reference properties from composition objects. Currently, the _mathematical expression_ is provided in the form of a __string__. Expression animations work by parsing the mathematical expression string and internally converting it to a list of operations to produce an output value.  
+Well, using a __string__ for creating an expression increases the chance of introducing errors (spelling, type-mismatch to name a few...). These errors will not be picked up during compile time and can be difficult to debug during runtime too.  
+To mitigate this issue, we can use lambda expressions which are statically typed and allow the common errors to be caught during compile time.
+
+__CompositionExpressionToolkit__ provides the following extension methods which allow the user to provide lambda expressions
+
+```C#
+
+public static Dictionary<string, object> SetExpression<T>(this ExpressionAnimation animation,
+			Expression<CompositionLambda<T>> expression);
+
+public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
+			Expression<CompositionLambda<T>> expression);
+	
+public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
+            Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction);
+			
+```
+
+Each of these methods have a parameter of type `Expression<CompositionLambda<T>>` which defines the actual lambda expression. These extension methods parse the lambda expression and convert them to appropriate mathematical expression string and link to the symbols used in the lambda expression by calling the appropriate __Set*xxx*Parameter__ internally.  
+
+`CompositionLambda<T>` is a delegate which is defined like this
+
+```C#
+
+public delegate T CompositionLambda<out T>(CompositionExpressionContext ctx);
+
+```
+
+`CompositionExpressionContext` class defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression.
+
+### Examples
+
+
+
+
+
 
 ## ScopedBatchHelper
 
