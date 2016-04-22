@@ -44,7 +44,57 @@ public delegate T CompositionLambda<out T>(CompositionExpressionContext ctx);
 
 ### Examples
 
-...
+#### Example 1
+
+**Without using CompositionExpressionToolkit**
+
+```C#
+Point position = new Point(0,0);
+Vector3KeyFrameAnimation offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
+CompositionPropertySet scrollProperties = 
+	ElementCompositionPreview.GetScrollViewerManipulationPropertySet(scrollViewer);
+
+position.X += scrollViewer.HorizontalOffset;
+position.Y += scrollViewer.VerticalOffset;
+offsetAnimation.Duration = totalDuration;
+
+// Create expression string
+string expression = 
+	"Vector3(scrollingProperties.Translation.X, scrollingProperties.Translation.Y, 0) + itemOffset";
+
+// Set the expression
+offsetAnimation.InsertExpressionKeyFrame(1f, expression);
+
+// Set the parameters
+offsetAnimation.SetReferenceParameter("scrollingProperties", scrollProperties);
+offsetAnimation.SetVector3Parameter("itemOffset", new Vector3((float) position.X, (float) position.Y, 0));
+
+```
+
+**Using CompositionExpressionToolkit**
+
+```C#
+Point position = new Point(0,0);
+Vector3KeyFrameAnimation offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
+CompositionPropertySet scrollProperties = 
+	ElementCompositionPreview.GetScrollViewerManipulationPropertySet(scrollViewer);
+
+position.X += scrollViewer.HorizontalOffset;
+position.Y += scrollViewer.VerticalOffset;
+var itemOffset = new Vector3((float) position.X, (float) position.Y, 0);
+
+offsetAnimation.Duration = totalDuration;
+
+// Create the CompositionLambda Expression
+Expression<CompositionLambda<Vector3>> expr =
+	c => c.Vector3((float)scrollProperties.Get<TranslateTransform>("Translation").X,
+		(float)scrollProperties.Get<TranslateTransform>("Translation").Y, 0) +
+		 itemOffset;
+		 
+// Set the Expression
+offsetAnimation.InsertExpressionKeyFrame(1f, expr);
+
+```
 
 
 
@@ -73,6 +123,17 @@ ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation
        {
            BackBtn.IsEnabled = true;
        });
+```
+## Converting from `double` to `float`
+Most of the values which is calculated or derived from the properties of **UIElement** (and its derived classes) are of type **double**. But most of the classes in **Sytem.Numerics** and **Windows.UI.Composition** namespaces require the values to be of type **float**. If you find adding a `(float)` cast before each and every variable of type **double**, you can call the **.Single** extension method on the variable which converts the **double** into **float**. Ensure that the value of the double variable is between **System.Single.MinValue** and **System.Single.MaxValue** otherwise **ArgumentOutOfRangeException** will be thrown.  
+
+**Note**: _Conversion of a value from **double** to **float** will reduce the precision of the value._  
+
+**Example**
+```C#
+double width = window.Width;
+double height = window.Height;
+Vector2 size = new Vector2(width.Single(), height.Single());
 ```
 
 # Installing from NuGet
