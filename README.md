@@ -1,5 +1,5 @@
 # CompositionExpressionToolkit
-__CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use Windows.UI.Composition features. They include methods for creating statically typed CompositionAnimation expressions, CompositionPropertySet extension methods, helper methods for creating ScopedBatchSets etc.
+__CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.aspx">Windows.UI.Composition</a> features. They include methods for creating statically typed **CompositionAnimation** expressions, **CompositionPropertySet** extension methods, helper methods for creating **ScopedBatchSets** etc.
 
 ## CompositionPropertySet extensions
 The <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.compositionpropertyset.aspx">__CompositionPropertySet__</a> class is like a dictionary which stores key-value pairs. As of now, the values can be of type __float__, __Color__, __Matrix3x2__, __Matrix4x4__, __Quaternion__, __Scalar__, __Vector2__, __Vector3__ and __Vector4__. To store and retrieve, __CompositionPropertySet__ has separate __Insert*xxx*__ and __TryGet*xxx*__ methods for each type.  
@@ -32,7 +32,7 @@ public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimati
 
 Each of these methods have a parameter of type `Expression<CompositionLambda<T>>` which defines the actual lambda expression. These extension methods parse the lambda expression and convert them to appropriate mathematical expression string and link to the symbols used in the lambda expression by calling the appropriate __Set*xxx*Parameter__ internally.  
 
-`CompositionLambda<T>` is a delegate which is defined like this
+**CompositionLambda&lt;T&gt;** is a delegate which is defined like this
 
 ```C#
 
@@ -40,11 +40,11 @@ public delegate T CompositionLambda<out T>(CompositionExpressionContext ctx);
 
 ```
 
-`CompositionExpressionContext` class defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression.
+**CompositionExpressionContext** class defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression.
 
 ### Examples
 
-
+...
 
 
 
