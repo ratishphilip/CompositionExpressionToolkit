@@ -31,7 +31,7 @@ public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimati
 			
 ```
 
-Each of these methods have a parameter of type `Expression<CompositionLambda<T>>` which defines the actual lambda expression. These extension methods parse the lambda expression and convert them to appropriate mathematical expression string and link to the symbols used in the lambda expression by calling the appropriate __Set*xxx*Parameter__ internally.  
+Each of these methods have a parameter of type **Expression&lt;CompositionLambda&lt;T&gt;&gt;** which defines the actual lambda expression. These extension methods parse the lambda expression and convert them to appropriate mathematical expression string and link to the symbols used in the lambda expression by calling the appropriate __Set*xxx*Parameter__ internally.  
 
 **CompositionLambda&lt;T&gt;** is a delegate which is defined like this
 
