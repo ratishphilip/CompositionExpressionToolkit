@@ -24,6 +24,7 @@ namespace CompositionExpressionToolkit
 
         private static readonly Dictionary<ExpressionType, string> BinaryExpressionStrings;
         private static readonly Dictionary<Type, MethodInfo> VisitMethods;
+        private static readonly Type[] Floatables;
 
         private static bool _noQuotesForConstant;
         private static bool _firstBinaryExpression = true;
@@ -79,6 +80,20 @@ namespace CompositionExpressionToolkit
                 { ExpressionType.MultiplyAssignChecked, "*=" },
                 { ExpressionType.SubtractAssignChecked, "-=" },
             };
+
+            Floatables = new[]{
+                                  typeof(short),
+                                  typeof(ushort),
+                                  typeof(int),
+                                  typeof(uint),
+                                  typeof(long),
+                                  typeof(ulong),
+                                  typeof(char),
+                                  typeof(double),
+                                  typeof(bool),
+                                  typeof(float),
+                                  typeof(decimal)
+                              };
 
             // Get all the types which derive from Expression or MemberBinding
             var expressionTypes = typeof(Expression)
@@ -287,19 +302,64 @@ namespace CompositionExpressionToolkit
         private static ExpressionToken Visit(MemberExpression expr)
         {
             // ### Customized for Composition ###
+            // If the expression is of type CompositionPropertySet, then no need to 
+            // visit this expression tree further. Just add this CompositionPropertySet
+            // to the _parameters dictionary (if it doesn't already exist) and return
+            // the name of the expression member
+            if (expr.Type == typeof(CompositionPropertySet))
+            {
+                if (!_parameters.ContainsKey(expr.Member.Name) &&
+                    expr.Expression is ConstantExpression)
+                {
+                    if ((expr.Member as FieldInfo) != null)
+                    {
+                        _parameters.Add(expr.Member.Name, ((FieldInfo)expr.Member).GetValue(((ConstantExpression)expr.Expression).Value));
+                    }
+                    else if ((expr.Member as PropertyInfo) != null)
+                    {
+                        _parameters.Add(expr.Member.Name, ((PropertyInfo)expr.Member).GetValue(((ConstantExpression)expr.Expression).Value));
+                    }
+                }
+
+                return new SimpleExpressionToken(expr.Member.Name);
+            }
+
             // Check if the parent of this expression has a name which starts with CS$<
-            var memberExpr = expr.Expression as MemberExpression;
-            if ((memberExpr != null) && (memberExpr.Member.Name.StartsWith("CS$<", StringComparison.Ordinal)))
+            var parentMemberExpr = expr.Expression as MemberExpression;
+            if ((parentMemberExpr != null) &&
+                parentMemberExpr.Member.Name.StartsWith("CS$<", StringComparison.Ordinal))
             {
                 // ### Customized for Composition ###
                 // Add to the parameters dictionary
-                if (!_parameters.ContainsKey(expr.Member.Name) && expr.Member is FieldInfo &&
-                    memberExpr.Expression is ConstantExpression)
+                if (!_parameters.ContainsKey(expr.Member.Name)
+                    && (parentMemberExpr.Expression as ConstantExpression) != null)
                 {
-                    var localFieldValue =
-                        ((FieldInfo)memberExpr.Member).GetValue(((ConstantExpression)memberExpr.Expression).Value);
-                    _parameters.Add(expr.Member.Name,
-                        ((FieldInfo)expr.Member).GetValue(localFieldValue));
+                    var constantExpr = (ConstantExpression)parentMemberExpr.Expression;
+
+                    if ((parentMemberExpr.Member as FieldInfo) != null)
+                    {
+                        var localFieldValue = ((FieldInfo)parentMemberExpr.Member).GetValue(constantExpr.Value);
+                        if ((expr.Member as FieldInfo) != null)
+                        {
+                            _parameters.Add(expr.Member.Name, ((FieldInfo)expr.Member).GetValue(localFieldValue));
+                        }
+                        else if ((expr.Member as PropertyInfo) != null)
+                        {
+                            _parameters.Add(expr.Member.Name, ((PropertyInfo)expr.Member).GetValue(localFieldValue));
+                        }
+                    }
+                    else if ((parentMemberExpr.Member as PropertyInfo) != null)
+                    {
+                        var localFieldValue = ((PropertyInfo)parentMemberExpr.Member).GetValue(constantExpr.Value);
+                        if ((expr.Member as FieldInfo) != null)
+                        {
+                            _parameters.Add(expr.Member.Name, ((FieldInfo)expr.Member).GetValue(localFieldValue));
+                        }
+                        else if ((expr.Member as PropertyInfo) != null)
+                        {
+                            _parameters.Add(expr.Member.Name, ((PropertyInfo)expr.Member).GetValue(localFieldValue));
+                        }
+                    }
                 }
 
                 return new SimpleExpressionToken(expr.Member.Name);
@@ -307,12 +367,23 @@ namespace CompositionExpressionToolkit
 
             var token = new CompositeExpressionToken();
             var constExpr = expr.Expression as ConstantExpression;
-            if (constExpr?.Value != null && (constExpr.Value.GetType().IsNested && constExpr.Value.GetType().Name.StartsWith("<", StringComparison.Ordinal)))
+            if ((constExpr?.Value != null)
+                && constExpr.Value.GetType().IsNested
+                && constExpr.Value.GetType().Name.StartsWith("<", StringComparison.Ordinal))
             {
                 // ### Customized for Composition ###
                 // Add to the parameters dictionary
-                if (!_parameters.ContainsKey(expr.Member.Name) && expr.Member is FieldInfo)
-                    _parameters.Add(expr.Member.Name, ((FieldInfo)expr.Member).GetValue(constExpr.Value));
+                if (!_parameters.ContainsKey(expr.Member.Name))
+                {
+                    if ((expr.Member as FieldInfo) != null)
+                    {
+                        _parameters.Add(expr.Member.Name, ((FieldInfo)expr.Member).GetValue(constExpr.Value));
+                    }
+                    else if ((expr.Member as PropertyInfo) != null)
+                    {
+                        _parameters.Add(expr.Member.Name, ((PropertyInfo)expr.Member).GetValue(constExpr.Value));
+                    }
+                }
 
                 return new SimpleExpressionToken(expr.Member.Name);
             }
@@ -325,6 +396,7 @@ namespace CompositionExpressionToolkit
             {
                 token.AddToken(expr.Member.DeclaringType.Name);
             }
+
             token.AddToken("." + CleanIdentifier(expr.Member.Name));
 
             return token;
@@ -400,9 +472,9 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expr">ParameterExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken Visit(ParameterExpression exp)
+        private static ExpressionToken Visit(ParameterExpression expr)
         {
-            var name = exp.Name ?? "<param>";
+            var name = expr.Name ?? "<param>";
             return new SimpleExpressionToken(CleanIdentifier(name));
         }
 
@@ -411,12 +483,12 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expr">TypeBinaryExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken Visit(TypeBinaryExpression exp)
+        private static ExpressionToken Visit(TypeBinaryExpression expr)
         {
             var token = new CompositeExpressionToken(BracketType.Round);
-            token.AddToken(Visit(exp.Expression));
+            token.AddToken(Visit(expr.Expression));
             token.AddToken(" is ");
-            token.AddToken(exp.TypeOperand.Name);
+            token.AddToken(expr.TypeOperand.Name);
             return token;
         }
 
@@ -442,14 +514,14 @@ namespace CompositionExpressionToolkit
                     if (expr.Operand.Type.IsSubclassOf(expr.Type))
                         return Visit(expr.Operand);
                     // ### Customized for Composition ###
-                    // Don't add a cast for float
-                    if (expr.Type != typeof(float))
+                    // Don't add a cast for any of the types in Floatables
+                    if (Floatables.Contains(expr.Type))
                     {
-                        token.AddToken(new CompositeExpressionToken(expr.Type.Name, BracketType.Round));
+                        bracketsRequired = false;
                     }
                     else
                     {
-                        bracketsRequired = false;
+                        token.AddToken(new CompositeExpressionToken(expr.Type.Name, BracketType.Round));
                     }
                     break;
                 case ExpressionType.Negate:
