@@ -58,7 +58,7 @@ namespace CompositionExpressionToolkit
         /// <param name="expression">Expression</param>
         /// <returns>Dictionary of parameter names and the parameters</returns>
         public static Dictionary<string, object> SetExpression<T>(this ExpressionAnimation animation,
-            Expression<Func<CompositionExpressionContext, T>> expression)
+            Expression<CompositionLambda<T>> expression)
         {
             var ce = CompositionExpressionEngine.CreateCompositionExpression(expression);
             animation.Expression = ce.Expression;
@@ -77,7 +77,7 @@ namespace CompositionExpressionToolkit
         /// <param name="expression">Expression</param>
         /// <returns>KeyFrameAnimation</returns>
         public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
-            Expression<Func<CompositionExpressionContext, T>> expression)
+            Expression<CompositionLambda<T>> expression)
         {
             var ce = CompositionExpressionEngine.CreateCompositionExpression(expression);
             animation.InsertExpressionKeyFrame(normalizedProgressKey, ce.Expression);
@@ -97,7 +97,7 @@ namespace CompositionExpressionToolkit
         /// <param name="easingFunction">Easing Function</param>
         /// <returns>KeyFrameAnimation</returns>
         public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
-            Expression<Func<CompositionExpressionContext, T>> expression, CompositionEasingFunction easingFunction)
+            Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction)
         {
             var ce = CompositionExpressionEngine.CreateCompositionExpression(expression);
             animation.InsertExpressionKeyFrame(normalizedProgressKey, ce.Expression, easingFunction);

@@ -8,6 +8,12 @@ using Windows.UI.Composition;
 
 namespace CompositionExpressionToolkit
 {
+    #region Delegates
+
+    public delegate T CompositionLambda<out T>(CompositionExpressionContext ctx);
+
+    #endregion
+
     /// <summary>
     /// Converts an Expression to a string that can be used as an input
     /// for ExpressionAnimation and KeyFrameAnimation
@@ -23,7 +29,7 @@ namespace CompositionExpressionToolkit
         private static bool _firstBinaryExpression = true;
         private static Dictionary<string, object> _parameters;
 
-        #endregion
+        #endregion 
 
         #region Construction / Initialization
 
@@ -106,15 +112,15 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <typeparam name="T">Type of the Expression</typeparam>
         /// <param name="expression">Expression</param>
-        /// <returns>CompositionExpression</returns>
-        public static CompositionExpression CreateCompositionExpression<T>(Expression<Func<CompositionExpressionContext, T>> expression)
+        /// <returns>CompositionExpressionResult</returns>
+        public static CompositionExpressionResult CreateCompositionExpression<T>(Expression<CompositionLambda<T>> expression)
         {
             // Reset flags
             _noQuotesForConstant = false;
             _firstBinaryExpression = true;
             _parameters = new Dictionary<string, object>();
 
-            var compositionExpr = new CompositionExpression();
+            var compositionExpr = new CompositionExpressionResult();
             // Visit the Expression Tree and convert it to string
             var expr = Visit(expression).ToString();
             compositionExpr.Expression = expr;
@@ -281,16 +287,6 @@ namespace CompositionExpressionToolkit
         private static ExpressionToken Visit(MemberExpression expr)
         {
             // ### Customized for Composition ###
-            // NOTE: This check is for ScrollViewerManipulationPropertySet. It has a property called
-            // Properties which is of type CompositionPropertySet. So while converting to string, 'Properties'
-            // need not be printed
-            if ((expr.Member is PropertyInfo) && (expr.Type == typeof(CompositionPropertySet) && (expr.Member.Name == "Properties"))
-                && (expr.Expression is MemberExpression) && (expr.Expression.Type == typeof(CompositionPropertySet)))
-            {
-                return Visit(expr.Expression);
-            }
-
-            // ### Customized for Composition ###
             // Check if the parent of this expression has a name which starts with CS$<
             var memberExpr = expr.Expression as MemberExpression;
             if ((memberExpr != null) && (memberExpr.Member.Name.StartsWith("CS$<", StringComparison.Ordinal)))
@@ -438,6 +434,7 @@ namespace CompositionExpressionToolkit
 
             var token = new CompositeExpressionToken();
             var suffix = string.Empty;
+            var bracketsRequired = true;
 
             switch (expr.NodeType)
             {
@@ -447,7 +444,13 @@ namespace CompositionExpressionToolkit
                     // ### Customized for Composition ###
                     // Don't add a cast for float
                     if (expr.Type != typeof(float))
+                    {
                         token.AddToken(new CompositeExpressionToken(expr.Type.Name, BracketType.Round));
+                    }
+                    else
+                    {
+                        bracketsRequired = false;
+                    }
                     break;
                 case ExpressionType.Negate:
                 case ExpressionType.NegateChecked:
@@ -489,7 +492,7 @@ namespace CompositionExpressionToolkit
             var compToken = operandToken as CompositeExpressionToken;
             // If there are more the one tokens in the CompositeExpressionToken
             // then wrap them with Round brackets
-            if (compToken?.TokenCount() > 1)
+            if (bracketsRequired && (compToken?.TokenCount() > 1))
             {
                 compToken.SetBrackets(BracketType.Round);
             }

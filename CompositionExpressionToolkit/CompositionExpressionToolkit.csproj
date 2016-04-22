@@ -108,7 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompositionAnimationExtensions.cs" />
-    <Compile Include="CompositionExpression.cs" />
+    <Compile Include="CompositionExpressionResult.cs" />
     <Compile Include="CompositionExpressionContext.cs" />
     <Compile Include="CompositionExpressionEngine.cs" />
     <Compile Include="CompositionPropertySetExtensions.cs" />

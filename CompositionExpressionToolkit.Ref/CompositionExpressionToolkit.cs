@@ -2,16 +2,10 @@ namespace CompositionExpressionToolkit
 {
     public static partial class CompositionAnimationExtensions
     {
-        public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<System.Func<CompositionExpressionToolkit.CompositionExpressionContext, T>> expression) { return default(Windows.UI.Composition.KeyFrameAnimation); }
-        public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<System.Func<CompositionExpressionToolkit.CompositionExpressionContext, T>> expression, Windows.UI.Composition.CompositionEasingFunction easingFunction) { return default(Windows.UI.Composition.KeyFrameAnimation); }
-        public static System.Collections.Generic.Dictionary<string, object> SetExpression<T>(this Windows.UI.Composition.ExpressionAnimation animation, System.Linq.Expressions.Expression<System.Func<CompositionExpressionToolkit.CompositionExpressionContext, T>> expression) { return default(System.Collections.Generic.Dictionary<string, object>); }
+        public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.KeyFrameAnimation); }
+        public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression, Windows.UI.Composition.CompositionEasingFunction easingFunction) { return default(Windows.UI.Composition.KeyFrameAnimation); }
+        public static System.Collections.Generic.Dictionary<string, object> SetExpression<T>(this Windows.UI.Composition.ExpressionAnimation animation, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(System.Collections.Generic.Dictionary<string, object>); }
         public static T SetParameters<T>(this T animation, System.Collections.Generic.Dictionary<string, object> parameters) where T : Windows.UI.Composition.CompositionAnimation { return default(T); }
-    }
-    public partial class CompositionExpression
-    {
-        public CompositionExpression() { }
-        public string Expression { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(string); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
-        public System.Collections.Generic.Dictionary<string, object> Parameters { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(System.Collections.Generic.Dictionary<string, object>); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
     }
     public partial class CompositionExpressionContext
     {
@@ -91,8 +85,15 @@ namespace CompositionExpressionToolkit
     public abstract partial class CompositionExpressionEngine
     {
         protected CompositionExpressionEngine() { }
-        public static CompositionExpressionToolkit.CompositionExpression CreateCompositionExpression<T>(System.Linq.Expressions.Expression<System.Func<CompositionExpressionToolkit.CompositionExpressionContext, T>> expression) { return default(CompositionExpressionToolkit.CompositionExpression); }
+        public static CompositionExpressionToolkit.CompositionExpressionResult CreateCompositionExpression<T>(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(CompositionExpressionToolkit.CompositionExpressionResult); }
     }
+    public partial class CompositionExpressionResult
+    {
+        public CompositionExpressionResult() { }
+        public string Expression { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(string); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
+        public System.Collections.Generic.Dictionary<string, object> Parameters { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(System.Collections.Generic.Dictionary<string, object>); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
+    }
+    public delegate T CompositionLambda<out T>(CompositionExpressionToolkit.CompositionExpressionContext ctx);
     public static partial class CompositionPropertySetExtensions
     {
         public static T Get<T>(this Windows.UI.Composition.CompositionPropertySet propertySet, string key) { return default(T); }

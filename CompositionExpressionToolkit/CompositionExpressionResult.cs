@@ -6,7 +6,7 @@ namespace CompositionExpressionToolkit
     /// This class stores the result of the Expression Tree visit
     /// done by the CompositionExpressionEngine
     /// </summary>
-    public class CompositionExpression
+    public class CompositionExpressionResult
     {
         #region Properties
 
