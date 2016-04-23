@@ -87,12 +87,12 @@ var itemOffset = new Vector3(position.X.Single(), position.Y.Single(), 0);
 offsetAnimation.Duration = totalDuration;
 
 // Create the CompositionLambda Expression
-Expression<CompositionLambda<Vector3>> expr =
+Expression<CompositionLambda<Vector3>> expression =
 	c => c.Vector3(scrollProperties.Get<TranslateTransform>("Translation").X.Single(),
 		 	scrollProperties.Get<TranslateTransform>("Translation").Y.Single(), 0) + itemOffset;
 		 
 // Set the Expression
-offsetAnimation.InsertExpressionKeyFrame(1f, expr);
+offsetAnimation.InsertExpressionKeyFrame(1f, expression);
 
 ```
 
