@@ -4,9 +4,10 @@ using Windows.UI;
 namespace CompositionExpressionToolkit
 {
     /// <summary>
-    /// A dummy class which encapsulates common methods that
-    /// can be used to create an Expression for subclasses of
-    /// CompositionAnimation
+    /// This class defines a set of dummy helper functions (all the 
+    /// helper methods supported by ExpressionAnimation). 
+    /// These methods are primarily used to create the lambda expression.
+    /// https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx
     /// </summary>
     public class CompositionExpressionContext
     {

@@ -27,7 +27,7 @@ namespace CompositionExpressionToolkit
         private static readonly Type[] Floatables;
 
         private static bool _noQuotesForConstant;
-        private static bool _firstBinaryExpression = true;
+        private static bool _firstBinaryExpression;
         private static Dictionary<string, object> _parameters;
 
         #endregion 
@@ -132,7 +132,7 @@ namespace CompositionExpressionToolkit
         {
             // Reset flags
             _noQuotesForConstant = false;
-            _firstBinaryExpression = true;
+            _firstBinaryExpression = false;
             _parameters = new Dictionary<string, object>();
 
             var compositionExpr = new CompositionExpressionResult();
@@ -186,6 +186,17 @@ namespace CompositionExpressionToolkit
         /// <returns>ExpressionToken</returns>
         private static ExpressionToken Visit(BinaryExpression expr)
         {
+            // Check if it is the outermost BinaryExpression
+            // If yes, then no need to add round brackets to 
+            // the whole visited expression
+            var noBrackets = _firstBinaryExpression;
+            if (_firstBinaryExpression)
+            {
+                // Set it to false so that the internal BinaryExpression(s)
+                // will have round brackets
+                _firstBinaryExpression = false;
+            }
+
             var leftToken = Visit(expr.Left);
             var rightToken = Visit(expr.Right);
             if (expr.NodeType == ExpressionType.ArrayIndex)
@@ -202,10 +213,9 @@ namespace CompositionExpressionToolkit
 
             // This check is done to avoid wrapping the final ExpressionToken in Round Brackets
             var bracketType = BracketType.Round;
-            if (_firstBinaryExpression)
+            if (noBrackets)
             {
                 bracketType = BracketType.None;
-                _firstBinaryExpression = false;
             }
 
             var token = new CompositeExpressionToken(bracketType);
@@ -283,6 +293,14 @@ namespace CompositionExpressionToolkit
                 // Arrow
                 token.AddToken(" => ");
             }
+            // If the parameter is of type CompositionExpressionContext then it means 
+            // that this is a CompositionLambda expression (i.e. First specific Visit). 
+            // If the outermost Expression in the body of the CompositionLambda expression
+            // is a BinaryExpression, then no need to add round brackets
+            else if ((expr.Body as BinaryExpression) != null)
+            {
+                _firstBinaryExpression = true;
+            }
 
             // Expression Body
             var bodyToken = Visit(expr.Body);
@@ -301,7 +319,7 @@ namespace CompositionExpressionToolkit
         /// <returns>ExpressionToken</returns>
         private static ExpressionToken Visit(MemberExpression expr)
         {
-            // ### Customized for Composition ###
+            // ### Customized for Windows.UI.Composition ###
             // If the expression is of type CompositionPropertySet, then no need to 
             // visit this expression tree further. Just add this CompositionPropertySet
             // to the _parameters dictionary (if it doesn't already exist) and return
@@ -329,7 +347,7 @@ namespace CompositionExpressionToolkit
             if ((parentMemberExpr != null) &&
                 parentMemberExpr.Member.Name.StartsWith("CS$<", StringComparison.Ordinal))
             {
-                // ### Customized for Composition ###
+                // ### Customized for Windows.UI.Composition ###
                 // Add to the parameters dictionary
                 if (!_parameters.ContainsKey(expr.Member.Name)
                     && (parentMemberExpr.Expression as ConstantExpression) != null)
@@ -371,7 +389,7 @@ namespace CompositionExpressionToolkit
                 && constExpr.Value.GetType().IsNested
                 && constExpr.Value.GetType().Name.StartsWith("<", StringComparison.Ordinal))
             {
-                // ### Customized for Composition ###
+                // ### Customized for Windows.UI.Composition ###
                 // Add to the parameters dictionary
                 if (!_parameters.ContainsKey(expr.Member.Name))
                 {
@@ -416,8 +434,16 @@ namespace CompositionExpressionToolkit
             // If this is an extension method
             if (isExtensionMethod)
             {
-                // ### Customized for Composition ###
-                if (expr.Method.DeclaringType == typeof(CompositionPropertySetExtensions))
+                // ### Customized for Windows.UI.Composition ###
+                // If the .Single() extension method is being called on a System.Double
+                // value, no need to print it.
+                if (expr.Method.DeclaringType == typeof(DoubleExtensions))
+                {
+                    token.AddToken(Visit(expr.Arguments[0]));
+                }
+                // If the extension method being called belongs to CompositionPropertySetExtensions
+                // then no need to add the method name
+                else if (expr.Method.DeclaringType == typeof(CompositionPropertySetExtensions))
                 {
                     token.AddToken(Visit(expr.Arguments[0]));
                     token.AddToken(".");
@@ -440,7 +466,7 @@ namespace CompositionExpressionToolkit
                 {
                     token.AddToken(expr.Method.DeclaringType.FormattedName());
                 }
-                // ### Customized for Composition ###
+                // ### Customized for Windows.UI.Composition ###
                 // No need to print the object name if the object is of type CompositionExpressionContext
                 else if (expr.Object.Type == typeof(CompositionExpressionContext))
                 {
@@ -513,7 +539,7 @@ namespace CompositionExpressionToolkit
                 case ExpressionType.Convert:
                     if (expr.Operand.Type.IsSubclassOf(expr.Type))
                         return Visit(expr.Operand);
-                    // ### Customized for Composition ###
+                    // ### Customized for Windows.UI.Composition ###
                     // Don't add a cast for any of the types in Floatables
                     if (Floatables.Contains(expr.Type))
                     {
@@ -678,6 +704,5 @@ namespace CompositionExpressionToolkit
         }
 
         #endregion
-
     }
 }

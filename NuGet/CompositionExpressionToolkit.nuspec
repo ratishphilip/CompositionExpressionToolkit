@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CompositionExpressionToolkit</id>
-    <version>0.1.3.0</version>
+    <version>0.1.4.0</version>
     <title>CompositionExpressionToolkit</title>
     <authors>Ratish Philip</authors>
     <owners>Ratish Philip</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/ratishphilip/CompositionExpressionToolkit</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Toolkit containing a collection of Extension methods and Helper classes which make it easier to use Windows.UI.Composition features.</description>
-    <releaseNotes>Bug Fixes.</releaseNotes>
+    <releaseNotes>Added extension method 'Single()' for System.Double. Fixed bugs in CompositionExpressionEngine.</releaseNotes>
     <copyright>Copyright 2016 Ratish Philip</copyright>
   </metadata>
 </package>
