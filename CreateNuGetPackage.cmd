@@ -1,5 +1,7 @@
 @REM This script must be executed inside a Developer Command Prompt for Visual Studio
-@REM Run this from this path : G:\AppBackup\Work\GitHub\CompositionExpressionToolkit
+@REM Run this from the Solution Folder of CompositionExpressionToolkit project
+
+@pushd %~dp0
 
 @echo.
 @echo ===== Building CompositionExpressionToolkit.dll (x86) =====
@@ -29,3 +31,5 @@
 @echo ===== Creating NuGet package =====
 @echo.
 @NuGet\nuget.exe pack NuGet\CompositionExpressionToolkit.nuspec
+
+@popd
