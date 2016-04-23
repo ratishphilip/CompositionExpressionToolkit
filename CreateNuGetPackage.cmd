@@ -1,5 +1,5 @@
 @REM This script must be executed inside a Developer Command Prompt for Visual Studio
-@REM Run this from the Solution Folder of CompositionExpressionToolkit project
+@REM This script must be present in the Solution Folder of CompositionExpressionToolkit project
 
 @pushd %~dp0
 
