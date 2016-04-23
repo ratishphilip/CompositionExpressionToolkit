@@ -89,8 +89,7 @@ offsetAnimation.Duration = totalDuration;
 // Create the CompositionLambda Expression
 Expression<CompositionLambda<Vector3>> expr =
 	c => c.Vector3(scrollProperties.Get<TranslateTransform>("Translation").X.Single(),
-		 scrollProperties.Get<TranslateTransform>("Translation").Y.Single(), 0) +
-		 itemOffset;
+		 	scrollProperties.Get<TranslateTransform>("Translation").Y.Single(), 0) + itemOffset;
 		 
 // Set the Expression
 offsetAnimation.InsertExpressionKeyFrame(1f, expr);
