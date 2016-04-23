@@ -82,14 +82,14 @@ CompositionPropertySet scrollProperties =
 
 position.X += scrollViewer.HorizontalOffset;
 position.Y += scrollViewer.VerticalOffset;
-var itemOffset = new Vector3((float) position.X, (float) position.Y, 0);
+var itemOffset = new Vector3(position.X.Single(), position.Y.Single(), 0);
 
 offsetAnimation.Duration = totalDuration;
 
 // Create the CompositionLambda Expression
 Expression<CompositionLambda<Vector3>> expr =
-	c => c.Vector3((float)scrollProperties.Get<TranslateTransform>("Translation").X,
-		(float)scrollProperties.Get<TranslateTransform>("Translation").Y, 0) +
+	c => c.Vector3(scrollProperties.Get<TranslateTransform>("Translation").X.Single(),
+		(float)scrollProperties.Get<TranslateTransform>("Translation").Y.Single(), 0) +
 		 itemOffset;
 		 
 // Set the Expression
