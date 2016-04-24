@@ -37,11 +37,11 @@ Each of these methods have a parameter of type **Expression&lt;CompositionLambda
 
 ```C#
 
-public delegate T CompositionLambda<out T>(CompositionExpressionContext ctx);
+public delegate T CompositionLambda<T>(CompositionExpressionContext<T> ctx);
 
 ```
 
-**CompositionExpressionContext** class defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression.
+**CompositionExpressionContext&lt;T&gt;** is a generic class which defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression. This class also defines the **StartingValue** and **FinalValue** properties for use within **CompositeLambda** expressions.
 
 ### Examples
 
@@ -93,6 +93,77 @@ Expression<CompositionLambda<Vector3>> expression =
 		 
 // Set the Expression
 offsetAnimation.InsertExpressionKeyFrame(1f, expression);
+
+```
+
+#### Example 2
+
+**Without using CompositionExpressionToolkit**
+
+```C#
+ScrollViewer myScrollViewer = ThumbnailList.GetFirstDescendantOfType<ScrollViewer>();
+var scrollProperties = ElementCompositionPreview.GetScrollViewerManipulationPropertySet(myScrollViewer);
+			
+ExpressAnimation parallaxExpression = compositor.CreateExpressionAnimation();
+parallaxExpression.SetScalarParameter("StartOffset", 0.0f);
+parallaxExpression.SetScalarParameter("ParallaxValue", 0.5f);
+parallaxExpression.SetScalarParameter("ItemHeight", 0.0f);
+parallaxExpression.SetReferenceParameter("ScrollManipulation", scrollProperties);
+parallaxExpression.Expression = "(ScrollManipulation.Translation.Y + StartOffset - (0.5 * ItemHeight)) * 
+	ParallaxValue - (ScrollManipulation.Translation.Y + StartOffset - (0.5 * ItemHeight))";
+	
+```
+
+**Using CompositionExpressionToolkit**
+
+```C#
+ScrollViewer myScrollViewer = ThumbnailList.GetFirstDescendantOfType<ScrollViewer>();
+var scrollProperties = ElementCompositionPreview.GetScrollViewerManipulationPropertySet(myScrollViewer);
+			
+ExpressAnimation parallaxExpression = compositor.CreateExpressionAnimation();
+
+var StartOffset = 0.0f;
+var ParallaxValue = 0.5f;
+var ItemHeight = 0.0f;
+var p = new Point(0, 0);
+Expression<CompositionLambda<float>> expr = c =>
+		((_scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - (0.5 * ItemHeight)) *
+		 ParallaxValue - (_scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - 
+		 (0.5 * ItemHeight))).Single();
+
+parallaxExpression.SetExpression(expr);
+
+```
+
+#### Example 3 (using _this.StartingValue_ and _this.FinalValue_)
+
+**Without using CompositionExpressionToolkit**
+
+```C#
+var scaleKeyFrameAnimation = _compositor.CreateVector3KeyFrameAnimation();
+scaleKeyFrameAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
+scaleKeyFrameAnimation.Duration = TimeSpan.FromSeconds(3);
+
+var rotationAnimation = _compositor.CreateScalarKeyFrameAnimation();
+rotationAnimation.InsertExpressionKeyFrame(1.0f, "this.StartingValue + 45.0f");
+rotationAnimation.Duration = TimeSpan.FromSeconds(3);
+
+```
+
+**Using CompositionExpressionToolkit**
+
+```C#
+Expression<CompositionLambda<float>> expr1 = c => c.FinalValue;
+
+var scaleKeyFrameAnimation = _compositor.CreateVector3KeyFrameAnimation();
+scaleKeyFrameAnimation.InsertExpressionKeyFrame(1.0f, expr1);
+scaleKeyFrameAnimation.Duration = TimeSpan.FromSeconds(3);
+
+Expression<CompositionLambda<float>> expr2 = c => c.StartingValue + 45.0f;
+
+var rotationAnimation = compositor.CreateScalarKeyFrameAnimation();
+rotationAnimation.InsertExpressionKeyFrame(1.0f, expr2);
+rotationAnimation.Duration = TimeSpan.FromSeconds(3);
 
 ```
 
