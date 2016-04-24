@@ -196,7 +196,7 @@ ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation
        });
 ```
 ## Converting from `double` to `float`
-Most of the values which is calculated or derived from the properties of **UIElement** (and its derived classes) are of type **double**. But most of the classes in **Sytem.Numerics** and **Windows.UI.Composition** namespaces require the values to be of type **float**. If you find adding a `(float)` cast before each and every variable of type **double**, you can call the **.Single** extension method on the variable which converts the **double** into **float**. Ensure that the value of the double variable is between **System.Single.MinValue** and **System.Single.MaxValue** otherwise **ArgumentOutOfRangeException** will be thrown.  
+Most of the values which is calculated or derived from the properties of **UIElement** (and its derived classes) are of type **double**. But most of the classes in **Sytem.Numerics** and **Windows.UI.Composition** namespaces require the values to be of type **float**. If you find it tedious adding a `(float)` cast before each and every variable of type **double**, you can call the **.Single** extension method instead, on the variable which converts the **double** into **float**. Ensure that the value of the double variable is between **System.Single.MinValue** and **System.Single.MaxValue** otherwise **ArgumentOutOfRangeException** will be thrown.  
 
 **Note**: _Conversion of a value from **double** to **float** will reduce the precision of the value._  
 
