@@ -10,7 +10,7 @@ namespace CompositionExpressionToolkit
 {
     #region Delegates
 
-    public delegate T CompositionLambda<out T>(CompositionExpressionContext ctx);
+    public delegate T CompositionLambda<T>(CompositionExpressionContext<T> ctx);
 
     #endregion
 
@@ -282,8 +282,9 @@ namespace CompositionExpressionToolkit
         {
             var token = new CompositeExpressionToken();
 
-            // No need to print the parameter of type ExpressionContext
-            if (expr.Parameters[0].Type != typeof(CompositionExpressionContext))
+            // ### Customized for Windows.UI.Composition ###
+            // No need to print the parameter of type CompositionExpressionContext<T>
+            if (!IsGenericCompositionExpressionContextType(expr.Parameters[0].Type))
             {
                 // Parameter(s)
                 var paramStr = string.Join(", ", expr.Parameters.Select(p => CleanIdentifier(p.Name)).ToArray());
@@ -293,7 +294,7 @@ namespace CompositionExpressionToolkit
                 // Arrow
                 token.AddToken(" => ");
             }
-            // If the parameter is of type CompositionExpressionContext then it means 
+            // If the parameter is of type CompositionExpressionContext<T> then it means 
             // that this is a CompositionLambda expression (i.e. First specific Visit). 
             // If the outermost Expression in the body of the CompositionLambda expression
             // is a BinaryExpression, then no need to add round brackets
@@ -320,6 +321,15 @@ namespace CompositionExpressionToolkit
         private static ExpressionToken Visit(MemberExpression expr)
         {
             // ### Customized for Windows.UI.Composition ###
+            // Check if this expression is accessing the StartingValue or FinalValue
+            // Property of CompositionExpressionContext<T>
+            if (((expr.Member as PropertyInfo) != null) && 
+                (expr.Expression != null) && 
+                IsGenericCompositionExpressionContextType(expr.Expression.Type))
+            {
+                return new SimpleExpressionToken("this." + expr.Member.Name);
+            }
+
             // If the expression is of type CompositionPropertySet, then no need to 
             // visit this expression tree further. Just add this CompositionPropertySet
             // to the _parameters dictionary (if it doesn't already exist) and return
@@ -467,8 +477,8 @@ namespace CompositionExpressionToolkit
                     token.AddToken(expr.Method.DeclaringType.FormattedName());
                 }
                 // ### Customized for Windows.UI.Composition ###
-                // No need to print the object name if the object is of type CompositionExpressionContext
-                else if (expr.Object.Type == typeof(CompositionExpressionContext))
+                // No need to print the object name if the object is of type CompositionExpressionContext<T>
+                else if (IsGenericCompositionExpressionContextType(expr.Object.Type))
                 {
                     showDot = false;
                 }
@@ -701,6 +711,22 @@ namespace CompositionExpressionToolkit
             if (name.StartsWith("<>h__TransparentIdentifier", StringComparison.Ordinal))
                 return "temp_" + name.Substring(26);
             return name;
+        }
+
+        /// <summary>
+        /// Checks if the given type of of type CompositionExpressionContext&lt;T&gt;
+        /// </summary>
+        /// <param name="inputType">Type to check</param>
+        /// <returns>True of type matches otherwise false</returns>
+        private static bool IsGenericCompositionExpressionContextType(Type inputType)
+        {
+            if ((inputType == null) ||
+                (!inputType.IsGenericType()) ||
+                (!inputType.GenericTypeArguments.Any()))
+                return false;
+
+            var paramType = inputType.GenericTypeArguments[0];
+            return (inputType == typeof (CompositionExpressionContext<>).MakeGenericType(paramType));
         }
 
         #endregion

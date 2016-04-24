@@ -4,17 +4,23 @@ using Windows.UI;
 namespace CompositionExpressionToolkit
 {
     /// <summary>
-    /// This class defines a set of dummy helper functions (all the 
+    /// This generic class defines a set of dummy helper functions (all the 
     /// helper methods supported by ExpressionAnimation). 
     /// These methods are primarily used to create the lambda expression.
     /// https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx
     /// </summary>
-    public class CompositionExpressionContext
+    public class CompositionExpressionContext<T>
     {
+        public T StartingValue { get; private set; }
+
+        public T FinalValue { get; private set; }
+
         private CompositionExpressionContext()
         {
-
+            StartingValue = default(T);
+            FinalValue = default(T);
         }
+
         public float Abs(float value) { return 0; }
         public Vector2 Abs(Vector2 value) { return new Vector2(0); }
         public Vector3 Abs(Vector3 value) { return new Vector3(0); }
