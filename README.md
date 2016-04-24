@@ -1,7 +1,9 @@
 # CompositionExpressionToolkit
 __CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.aspx">Windows.UI.Composition</a> features. They include methods for creating statically typed **CompositionAnimation** expressions, **CompositionPropertySet** extension methods, helper methods for creating **ScopedBatchSets** etc.
 
-## CompositionPropertySet extensions
+# CompositionExpressionToolkit Internals
+
+## 1. CompositionPropertySet extensions
 The <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.compositionpropertyset.aspx">__CompositionPropertySet__</a> class is like a dictionary which stores key-value pairs. As of now, the values can be of type __float__, __Color__, __Matrix3x2__, __Matrix4x4__, __Quaternion__, __Scalar__, __Vector2__, __Vector3__ and __Vector4__. To store and retrieve, __CompositionPropertySet__ has separate __Insert*xxx*__ and __TryGet*xxx*__ methods for each type.  
 __CompositionExpressionToolkit__ provides generic extension methods __Insert<T>__ and __Get<T>__ which makes things simpler.
 
@@ -10,8 +12,8 @@ public static void Insert<T>(this CompositionPropertySet propertySet, string key
 public static T Get<T>(this CompositionPropertySet propertySet, string key);
 ```
 
-## Creating statically typed CompositionAnimation Expressions
-According to MSDN, <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__ExpressionAnimation__</a> and <a href="">__KeyFrameAnimation__</a> use a _mathematical expression_ to specify how the animated value should be calculated each frame. The expressions can reference properties from composition objects. Currently, the _mathematical expression_ is provided in the form of a __string__. Expression animations work by parsing the mathematical expression string and internally converting it to a list of operations to produce an output value.  
+## 2. Creating statically typed CompositionAnimation Expressions
+According to MSDN, <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__ExpressionAnimation__</a> and <a href="">__KeyFrameAnimation__</a> use a _mathematical expression_ to specify how the animated value should be calculated each frame. The expressions can reference properties from composition objects. _Currently, the mathematical expression is provided in the form of a **string**_. Expression animations work by parsing the mathematical expression string and internally converting it to a list of operations to produce an output value.  
 Well, using a __string__ for creating an expression increases the chance of introducing errors (spelling, type-mismatch to name a few...). These errors will not be picked up during compile time and can be difficult to debug during runtime too.  
 To mitigate this issue, we can use lambda expressions which are statically typed and allow the common errors to be caught during compile time.
 
@@ -33,7 +35,7 @@ public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimati
 
 Each of these methods have a parameter of type **Expression&lt;CompositionLambda&lt;T&gt;&gt;** which defines the actual lambda expression. These extension methods parse the lambda expression and convert them to appropriate mathematical expression string and link to the symbols used in the lambda expression by calling the appropriate __Set*xxx*Parameter__ internally.  
 
-**CompositionLambda&lt;T&gt;** is a delegate which is defined like this
+**CompositionLambda&lt;T&gt;** is a delegate which is defined as
 
 ```C#
 
@@ -125,12 +127,12 @@ ExpressAnimation parallaxExpression = compositor.CreateExpressionAnimation();
 var StartOffset = 0.0f;
 var ParallaxValue = 0.5f;
 var ItemHeight = 0.0f;
-var p = new Point(0, 0);
+// Create the Expression
 Expression<CompositionLambda<float>> expr = c =>
 		((_scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - (0.5 * ItemHeight)) *
 		 ParallaxValue - (_scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - 
 		 (0.5 * ItemHeight))).Single();
-
+// Set the Expression
 parallaxExpression.SetExpression(expr);
 
 ```
@@ -170,9 +172,9 @@ rotationAnimation.Duration = TimeSpan.FromSeconds(3);
 
 
 
-## ScopedBatchHelper
+## 3. ScopedBatchHelper
 
-This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the completed event the subscribing and unsubscribing process internally.
+This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the subscribing and unsubscribing process of the **Completed** event internally.
 
 __API__:
 
@@ -195,7 +197,7 @@ ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation
            BackBtn.IsEnabled = true;
        });
 ```
-## Converting from `double` to `float`
+## 4. Converting from `double` to `float`
 Most of the values which is calculated or derived from the properties of **UIElement** (and its derived classes) are of type **double**. But most of the classes in **Sytem.Numerics** and **Windows.UI.Composition** namespaces require the values to be of type **float**. If you find it tedious adding a `(float)` cast before each and every variable of type **double**, you can call the **.Single** extension method for **System.Double** instead, which converts the **double** into **float**. Ensure that the value of the double variable is between **System.Single.MinValue** and **System.Single.MaxValue** otherwise **ArgumentOutOfRangeException** will be thrown.  
 
 **Note**: _Conversion of a value from **double** to **float** will reduce the precision of the value._  
