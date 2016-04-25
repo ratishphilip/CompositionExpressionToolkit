@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/ratishphilip/CompositionExpressionToolkit</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Toolkit containing a collection of Extension methods and Helper classes which make it easier to use Windows.UI.Composition features.</description>
-    <releaseNotes>Added Compositor extension methods, fixed parsing of CompositionPropertySet.Properties property.</releaseNotes>
+    <releaseNotes>Added Compositor extension method, SetParameter&lt;T&gt; extension method, fixed parsing of CompositionPropertySet.Properties property.</releaseNotes>
     <copyright>Copyright 2016 Ratish Philip</copyright>
   </metadata>
 </package>
