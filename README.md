@@ -17,10 +17,13 @@ According to MSDN, <a href="https://msdn.microsoft.com/en-us/library/windows/app
 Well, using a __string__ for creating an expression increases the chance of introducing errors (spelling, type-mismatch to name a few...). These errors will not be picked up during compile time and can be difficult to debug during runtime too.  
 To mitigate this issue, we can use lambda expressions which are statically typed and allow the common errors to be caught during compile time.
 
-__CompositionExpressionToolkit__ provides the following extension methods which allow the user to provide lambda expressions
+**CompositionExpressionToolkit** provides the following extension methods which allow the user to provide lambda expressions
 
 ```C#
 
+public static ExpressionAnimation CreateExpressionAnimation<T>(this Compositor compositor,
+            Expression<CompositionLambda<T>> expression);
+            
 public static Dictionary<string, object> SetExpression<T>(this ExpressionAnimation animation,
 			Expression<CompositionLambda<T>> expression);
 
@@ -43,9 +46,25 @@ public delegate T CompositionLambda<T>(CompositionExpressionContext<T> ctx);
 
 ```
 
-**CompositionExpressionContext&lt;T&gt;** is a generic class which defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression. This class also defines the **StartingValue** and **FinalValue** properties for use within **CompositeLambda** expressions.
+**CompositionExpressionContext&lt;T&gt;** is a generic class which defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression. This class also defines the **StartingValue** and **FinalValue** properties for use within **CompositionLambda** expressions.
+
+**CompositionExpressionToolkit** also provides the following extension methods which allow the user to provide a key-value pair (or a set of key-value pairs) as parameter(s) for the **CompositionAnimation**
+
+```C#
+public static bool SetParameter<T>(this T animation, string key, object input) 
+    where T : CompositionAnimation 
+{
+}
+
+public static T SetParameters<T>(this T animation, Dictionary<string, object> parameters) 
+    where T : CompositionAnimation 
+{
+}
+        
+```
 
 ### Examples
+The following examples show how expressions are currently provided in string format to ExpressionAnimation. These examples also show how, using **CompositionExpressionToolkit**, **Expression&lt;CompositionLambda&lt;T&gt;&gt;** can be created (for the same scenario) and provided to the ExpressionAnimation.
 
 #### Example 1
 
@@ -129,15 +148,17 @@ var ParallaxValue = 0.5f;
 var ItemHeight = 0.0f;
 // Create the Expression
 Expression<CompositionLambda<float>> expr = c =>
-		((_scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - (0.5 * ItemHeight)) *
-		 ParallaxValue - (_scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - 
+		((scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - (0.5 * ItemHeight)) *
+		 ParallaxValue - (scrollProperties.Get<TranslateTransform>("Translation").Y + StartOffset - 
 		 (0.5 * ItemHeight))).Single();
 // Set the Expression
 parallaxExpression.SetExpression(expr);
 
 ```
 
-#### Example 3 (using _this.StartingValue_ and _this.FinalValue_)
+#### Example 3 
+
+This example shows how to provide _this.StartingValue_ and _this.FinalValue_ in a **CompositionLambda** Expression  
 
 **Without using CompositionExpressionToolkit**
 
@@ -169,8 +190,17 @@ rotationAnimation.Duration = TimeSpan.FromSeconds(3);
 
 ```
 
+#### Example 4
 
+The following table shows few examples of **Expression&lt;CompositionLambda&lt;T&gt;&gt;** expressed as **String**
 
+| T | Expression&lt;CompositionLambda&lt;T&gt;&gt; | String |
+|-----|-----|-----|
+|`float` | `c => c.StartingValue`| `"this.StartingValue"` |
+|`float` | `c => c.FinalValue`| `"this.FinalValue"` |
+|`float` | `c => c.StartingValue + (45.0).Single()`| `"this.StartingValue + 45"` |
+|`Vector3` | `c => c.Vector3(propSet.Get<TranslateTransform>("Translation").X, propSet.Get<TranslateTransform>("Translation").Y, 0)` <br /> _[**propSet** is of type **CompositionPropertySet**]_ | `"Vector3(propSet.Translation.X, propSet.Translation.Y, 0)` |
+|`Vector3` | `c => c.Vector3(propSet.Properties.Get<TranslateTransform>("Translation").X, propSet.Properties.Get<TranslateTransform>("Translation").Y, 0)`<br /> _[**propSet** is of type **CompositionPropertySet**]_ | `"Vector3(propSet.Translation.X, propSet.Translation.Y, 0)` |
 
 ## 3. ScopedBatchHelper
 
