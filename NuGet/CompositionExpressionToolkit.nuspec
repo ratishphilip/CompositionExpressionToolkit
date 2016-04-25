@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CompositionExpressionToolkit</id>
-    <version>0.1.5.0</version>
+    <version>0.1.6.0</version>
     <title>CompositionExpressionToolkit</title>
     <authors>Ratish Philip</authors>
     <owners>Ratish Philip</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/ratishphilip/CompositionExpressionToolkit</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Toolkit containing a collection of Extension methods and Helper classes which make it easier to use Windows.UI.Composition features.</description>
-    <releaseNotes>Added support for this.StartingValue and this.FinalValue.</releaseNotes>
+    <releaseNotes>Added Compositor extension methods, fixed parsing of CompositionPropertySet.Properties property.</releaseNotes>
     <copyright>Copyright 2016 Ratish Philip</copyright>
   </metadata>
 </package>

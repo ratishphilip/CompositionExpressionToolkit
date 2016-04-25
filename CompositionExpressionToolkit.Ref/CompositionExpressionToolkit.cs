@@ -5,6 +5,7 @@ namespace CompositionExpressionToolkit
         public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.KeyFrameAnimation); }
         public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression, Windows.UI.Composition.CompositionEasingFunction easingFunction) { return default(Windows.UI.Composition.KeyFrameAnimation); }
         public static System.Collections.Generic.Dictionary<string, object> SetExpression<T>(this Windows.UI.Composition.ExpressionAnimation animation, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(System.Collections.Generic.Dictionary<string, object>); }
+        public static bool SetParameter<T>(this T animation, string key, object input) where T : Windows.UI.Composition.CompositionAnimation { return default(bool); }
         public static T SetParameters<T>(this T animation, System.Collections.Generic.Dictionary<string, object> parameters) where T : Windows.UI.Composition.CompositionAnimation { return default(T); }
     }
     public partial class CompositionExpressionContext<T>
@@ -101,6 +102,10 @@ namespace CompositionExpressionToolkit
         public static T Get<T>(this Windows.UI.Composition.CompositionPropertySet propertySet, string key) { return default(T); }
         public static void Insert<T>(this Windows.UI.Composition.CompositionPropertySet propertySet, string key, object input) { }
         public static Windows.UI.Composition.CompositionPropertySet ToPropertySet(object input, Windows.UI.Composition.Compositor compositor) { return default(Windows.UI.Composition.CompositionPropertySet); }
+    }
+    public static partial class CompositorExtensions
+    {
+        public static Windows.UI.Composition.ExpressionAnimation CreateExpressionAnimation<T>(this Windows.UI.Composition.Compositor compositor, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.ExpressionAnimation); }
     }
     public static partial class DoubleExtensions
     {

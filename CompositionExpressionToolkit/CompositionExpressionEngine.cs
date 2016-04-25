@@ -330,6 +330,16 @@ namespace CompositionExpressionToolkit
                 return new SimpleExpressionToken("this." + expr.Member.Name);
             }
 
+            // This check is for CompositionPropertySet. It has a property called 
+            // Properties which is of type CompositionPropertySet. So while converting to string, 'Properties' 
+            // need not be printed 
+            if (((expr.Member as PropertyInfo) != null) && 
+                (expr.Type == typeof(CompositionPropertySet) && (expr.Member.Name == "Properties"))
+                && (expr.Expression is MemberExpression) && (expr.Expression.Type == typeof(CompositionPropertySet)))
+            {
+                return Visit(expr.Expression);
+            }
+
             // If the expression is of type CompositionPropertySet, then no need to 
             // visit this expression tree further. Just add this CompositionPropertySet
             // to the _parameters dictionary (if it doesn't already exist) and return

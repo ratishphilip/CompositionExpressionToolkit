@@ -60,11 +60,11 @@ namespace CompositionExpressionToolkit
         public static Dictionary<string, object> SetExpression<T>(this ExpressionAnimation animation,
             Expression<CompositionLambda<T>> expression)
         {
-            var ce = CompositionExpressionEngine.CreateCompositionExpression(expression);
-            animation.Expression = ce.Expression;
-            animation.SetParameters(ce.Parameters);
+            var result = CompositionExpressionEngine.CreateCompositionExpression(expression);
+            animation.Expression = result.Expression;
+            animation.SetParameters(result.Parameters);
 
-            return ce.Parameters;
+            return result.Parameters;
         }
 
         /// <summary>
@@ -79,9 +79,9 @@ namespace CompositionExpressionToolkit
         public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
             Expression<CompositionLambda<T>> expression)
         {
-            var ce = CompositionExpressionEngine.CreateCompositionExpression(expression);
-            animation.InsertExpressionKeyFrame(normalizedProgressKey, ce.Expression);
-            animation.SetParameters(ce.Parameters);
+            var result = CompositionExpressionEngine.CreateCompositionExpression(expression);
+            animation.InsertExpressionKeyFrame(normalizedProgressKey, result.Expression);
+            animation.SetParameters(result.Parameters);
 
             return animation;
         }
@@ -99,11 +99,60 @@ namespace CompositionExpressionToolkit
         public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
             Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction)
         {
-            var ce = CompositionExpressionEngine.CreateCompositionExpression(expression);
-            animation.InsertExpressionKeyFrame(normalizedProgressKey, ce.Expression, easingFunction);
-            animation.SetParameters(ce.Parameters);
+            var result = CompositionExpressionEngine.CreateCompositionExpression(expression);
+            animation.InsertExpressionKeyFrame(normalizedProgressKey, result.Expression, easingFunction);
+            animation.SetParameters(result.Parameters);
 
             return animation;
+        }
+
+        /// <summary>
+        /// Sets the parameter value in the animation for the given key
+        /// </summary>
+        /// <typeparam name="T">Type of Animation</typeparam>
+        /// <param name="animation">Animation object into which the parameters must be set</param>
+        /// <param name="key">Key for the input value</param>
+        /// <param name="input">Value to set</param>
+        /// <returns>True if successful, otherwise False</returns>
+        public static bool SetParameter<T>(this T animation, string key, object input) where T : CompositionAnimation
+        {
+            if (String.IsNullOrWhiteSpace(key))
+                return false;
+
+            var parameter = input;
+            var type = parameter.GetType();
+
+            // Can the type be converted to float?
+            if (Floatables.Contains(type))
+            {
+                type = typeof(float);
+                parameter = Convert.ToSingle(parameter);
+            }
+
+            if (type == typeof(Point))
+            {
+                var point = (Point)parameter;
+                parameter = new Vector3((float)point.X, (float)point.Y, 0);
+                type = typeof(Vector3);
+            }
+
+            while (!type.IsPublic())
+            {
+                type = type.BaseType();
+            }
+
+            MethodInfo methodInfo;
+            // Find matching Setxxx method for the given type
+            if (SetMethods.TryGetValue(type, out methodInfo) ||
+                ((type.BaseType() != null) && SetMethods.TryGetValue(type.BaseType(), out methodInfo)))
+            {
+                // Once a matching SetxxxParameter method is found, Invoke it!
+                methodInfo.Invoke(animation, new[] { key, parameter });
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -115,48 +164,19 @@ namespace CompositionExpressionToolkit
         /// <returns>Animation</returns>
         public static T SetParameters<T>(this T animation, Dictionary<string, object> parameters) where T : CompositionAnimation
         {
-            Dictionary<string, object> newParameters = new Dictionary<string, object>();
+            var newParameters = new Dictionary<string, object>();
 
-            foreach (var key in parameters.Keys)
+            // Try to set the parameter for each of the keys
+            foreach (var key in from key in parameters.Keys
+                                let parameter = parameters[key]
+                                where (!animation.SetParameter(key, parameter))
+                                select key)
             {
-                var parameter = parameters[key];
-                var type = parameter.GetType();
-
-                // Can the type be converted to float?
-                if (Floatables.Contains(type))
-                {
-                    type = typeof(float);
-                    parameter = Convert.ToSingle(parameter);
-                }
-
-                if (type == typeof(Point))
-                {
-                    var point = (Point)parameter;
-                    parameter = new Vector3((float)point.X, (float)point.Y, 0);
-                    type = typeof(Vector3);
-                }
-
-                while (!type.IsPublic())
-                {
-                    type = type.BaseType();
-                }
-
-                MethodInfo methodInfo;
-                // Find matching Setxxx method for the given type
-                if (SetMethods.TryGetValue(type, out methodInfo) ||
-                    ((type.BaseType() != null) && SetMethods.TryGetValue(type.BaseType(), out methodInfo)))
-                {
-                    // Once a matching SetxxxParameter method is found, Invoke it!
-                    methodInfo.Invoke(animation, new[] { key, parameter });
-                }
-                else
-                {
-                    // If no matching method is found, then convert the parameter into a CompositionPropertySet
-                    // Since we cannot modify the parameters dictionary while we are inside the loop, add the key and the
-                    // CompositionPropertySet to the newParameters dictionary, so that the parameters dictionary can be updated 
-                    // once the loop completes
-                    newParameters[key] = CompositionPropertySetExtensions.ToPropertySet(parameters[key], animation.Compositor);
-                }
+                // If SetParameter fails, then convert the parameter into a CompositionPropertySet
+                // Since we cannot modify the parameters dictionary while we are inside the loop, add the key and the
+                // CompositionPropertySet to the newParameters dictionary, so that the parameters dictionary can be updated 
+                // once the loop completes
+                newParameters[key] = CompositionPropertySetExtensions.ToPropertySet(parameters[key], animation.Compositor);
             }
 
             // If any key value pairs exist in the newParameters dictionary, then update the parameters dictionary

@@ -112,6 +112,7 @@
     <Compile Include="CompositionExpressionContext.cs" />
     <Compile Include="CompositionExpressionEngine.cs" />
     <Compile Include="CompositionPropertySetExtensions.cs" />
+    <Compile Include="CompositorExtensions.cs" />
     <Compile Include="DoubleExtensions.cs" />
     <Compile Include="ExpressionToken.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
