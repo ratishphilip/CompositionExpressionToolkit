@@ -1,4 +1,4 @@
-<img src="https://cloud.githubusercontent.com/assets/7021835/14899112/7107812c-0d3f-11e6-9e12-20de4e94b858.png" alt="CompositionExpressionToolkit logo">
+<img src="https://cloud.githubusercontent.com/assets/7021835/14899489/1701d702-0d41-11e6-9949-1480c1da2684.png" alt="CompositionExpressionToolkit logo">
 
 __CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.aspx">Windows.UI.Composition</a> features. They include methods for creating statically typed **CompositionAnimation** expressions, **CompositionPropertySet** extension methods, helper methods for creating **ScopedBatchSets** etc.
 
