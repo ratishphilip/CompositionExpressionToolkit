@@ -42,7 +42,6 @@ namespace CompositionExpressionToolkit
                                   typeof(ulong),
                                   typeof(char),
                                   typeof(double),
-                                  typeof(bool),
                                   typeof(decimal)
                               };
         }

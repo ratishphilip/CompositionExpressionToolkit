@@ -219,9 +219,7 @@ namespace CompositionExpressionToolkit
             }
 
             var token = new CompositeExpressionToken(bracketType);
-            token.AddToken(leftToken);
-            token.AddToken(" " + symbol + " ");
-            token.AddToken(rightToken);
+            token.AddToken($"{leftToken} {symbol} {rightToken}");
 
             return token;
         }
@@ -234,11 +232,7 @@ namespace CompositionExpressionToolkit
         private static ExpressionToken Visit(ConditionalExpression expr)
         {
             var token = new CompositeExpressionToken();
-            token.AddToken(Visit(expr.Test));
-            token.AddToken(" ? ");
-            token.AddToken(Visit(expr.IfTrue));
-            token.AddToken(" : ");
-            token.AddToken(Visit(expr.IfFalse));
+            token.AddToken($"{Visit(expr.Test)} ? {Visit(expr.IfTrue)} : {Visit(expr.IfFalse)}");
             return token;
         }
 
@@ -327,7 +321,7 @@ namespace CompositionExpressionToolkit
                 (expr.Expression != null) && 
                 IsGenericCompositionExpressionContextType(expr.Expression.Type))
             {
-                return new SimpleExpressionToken("this." + expr.Member.Name);
+                return new SimpleExpressionToken($"this.{expr.Member.Name}");
             }
 
             // This check is for CompositionPropertySet. It has a property called 
@@ -435,7 +429,7 @@ namespace CompositionExpressionToolkit
                 token.AddToken(expr.Member.DeclaringType.Name);
             }
 
-            token.AddToken("." + CleanIdentifier(expr.Member.Name));
+            token.AddToken($".{CleanIdentifier(expr.Member.Name)}");
 
             return token;
         }
@@ -474,7 +468,7 @@ namespace CompositionExpressionToolkit
                 else
                 {
                     token.AddToken(Visit(expr.Arguments[0]));
-                    token.AddToken("." + methodName);
+                    token.AddToken($".{methodName}");
                     token.AddToken(new CompositeExpressionToken(expr.Arguments.Skip(1).Select(Visit), BracketType.Round,
                         true));
                 }
@@ -532,9 +526,7 @@ namespace CompositionExpressionToolkit
         private static ExpressionToken Visit(TypeBinaryExpression expr)
         {
             var token = new CompositeExpressionToken(BracketType.Round);
-            token.AddToken(Visit(expr.Expression));
-            token.AddToken(" is ");
-            token.AddToken(expr.TypeOperand.Name);
+            token.AddToken($"{Visit(expr.Expression)} is {expr.TypeOperand.Name}");
             return token;
         }
 
@@ -634,8 +626,7 @@ namespace CompositionExpressionToolkit
         private static ExpressionToken Visit(MemberAssignment mb)
         {
             var token = new CompositeExpressionToken();
-            token.AddToken(CleanIdentifier(mb.Member.Name) + " = ");
-            token.AddToken(Visit(mb.Expression));
+            token.AddToken($"{CleanIdentifier(mb.Member.Name)} = {Visit(mb.Expression)}");
             return token;
         }
 
