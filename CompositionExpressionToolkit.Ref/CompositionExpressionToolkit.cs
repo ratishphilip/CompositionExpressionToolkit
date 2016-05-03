@@ -89,6 +89,7 @@ namespace CompositionExpressionToolkit
     {
         protected CompositionExpressionEngine() { }
         public static CompositionExpressionToolkit.CompositionExpressionResult CreateCompositionExpression<T>(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(CompositionExpressionToolkit.CompositionExpressionResult); }
+        public static string ParseExpression(System.Linq.Expressions.Expression<System.Func<Windows.UI.Composition.CompositionObject, object>> expression) { return default(string); }
     }
     public partial class CompositionExpressionResult
     {
@@ -97,6 +98,12 @@ namespace CompositionExpressionToolkit
         public System.Collections.Generic.Dictionary<string, object> Parameters { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(System.Collections.Generic.Dictionary<string, object>); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
     }
     public delegate T CompositionLambda<T>(CompositionExpressionToolkit.CompositionExpressionContext<T> ctx);
+    public static partial class CompositionObjectExtensions
+    {
+        public static string ScaleXY(this Windows.UI.Composition.CompositionObject compositionObject) { return default(string); }
+        public static void StartAnimation(this Windows.UI.Composition.CompositionObject compositionObject, System.Linq.Expressions.Expression<System.Func<Windows.UI.Composition.CompositionObject, object>> expression, Windows.UI.Composition.CompositionAnimation animation) { }
+        public static void StopAnimation(this Windows.UI.Composition.CompositionObject compositionObject, System.Linq.Expressions.Expression<System.Func<Windows.UI.Composition.CompositionObject, object>> expression) { }
+    }
     public static partial class CompositionPropertySetExtensions
     {
         public static T Get<T>(this Windows.UI.Composition.CompositionPropertySet propertySet, string key) { return default(T); }
