@@ -23,7 +23,6 @@ To mitigate this issue, we can use lambda expressions which are statically typed
 **CompositionExpressionToolkit** provides the following extension methods which allow the user to provide lambda expressions
 
 ```C#
-
 public static ExpressionAnimation CreateExpressionAnimation<T>(this Compositor compositor,
             Expression<CompositionLambda<T>> expression);
             
@@ -36,7 +35,6 @@ public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimati
 public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, 
 	float normalizedProgressKey, 
 	Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction);
-			
 ```
 
 Each of these methods have a parameter of type **Expression&lt;CompositionLambda&lt;T&gt;&gt;** which defines the actual lambda expression. These extension methods parse the lambda expression and convert them to appropriate mathematical expression string and link to the symbols used in the lambda expression by calling the appropriate __Set*xxx*Parameter__ internally.  
@@ -44,9 +42,7 @@ Each of these methods have a parameter of type **Expression&lt;CompositionLambda
 **CompositionLambda&lt;T&gt;** is a delegate which is defined as
 
 ```C#
-
 public delegate T CompositionLambda<T>(CompositionExpressionContext<T> ctx);
-
 ```
 
 **CompositionExpressionContext&lt;T&gt;** is a generic class which defines a set of dummy helper functions (all the <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.expressionanimation.aspx">__helper methods__</a> supported by ExpressionAnimation). These methods are primarily used to create the lambda expression. This class also defines the **StartingValue** and **FinalValue** properties for use within **CompositionLambda** expressions.
@@ -63,7 +59,6 @@ public static T SetParameters<T>(this T animation, Dictionary<string, object> pa
     where T : CompositionAnimation 
 {
 }
-        
 ```
 
 ### Examples
@@ -93,7 +88,6 @@ offsetAnimation.InsertExpressionKeyFrame(1f, expression);
 // Set the parameters
 offsetAnimation.SetReferenceParameter("scrollingProperties", scrollProperties);
 offsetAnimation.SetVector3Parameter("itemOffset", new Vector3((float) position.X, (float) position.Y, 0));
-
 ```
 
 **Using CompositionExpressionToolkit**
@@ -117,7 +111,6 @@ Expression<CompositionLambda<Vector3>> expression =
 		 
 // Set the Expression
 offsetAnimation.InsertExpressionKeyFrame(1f, expression);
-
 ```
 
 #### Example 2
@@ -135,7 +128,6 @@ parallaxExpression.SetScalarParameter("ItemHeight", 0.0f);
 parallaxExpression.SetReferenceParameter("ScrollManipulation", scrollProperties);
 parallaxExpression.Expression = "(ScrollManipulation.Translation.Y + StartOffset - (0.5 * ItemHeight)) * 
 	ParallaxValue - (ScrollManipulation.Translation.Y + StartOffset - (0.5 * ItemHeight))";
-	
 ```
 
 **Using CompositionExpressionToolkit**
@@ -156,7 +148,6 @@ Expression<CompositionLambda<float>> expr = c =>
 		 (0.5 * ItemHeight))).Single();
 // Set the Expression
 parallaxExpression.SetExpression(expr);
-
 ```
 
 #### Example 3 
@@ -173,7 +164,6 @@ scaleKeyFrameAnimation.Duration = TimeSpan.FromSeconds(3);
 var rotationAnimation = _compositor.CreateScalarKeyFrameAnimation();
 rotationAnimation.InsertExpressionKeyFrame(1.0f, "this.StartingValue + 45.0f");
 rotationAnimation.Duration = TimeSpan.FromSeconds(3);
-
 ```
 
 **Using CompositionExpressionToolkit**
@@ -190,7 +180,6 @@ Expression<CompositionLambda<float>> expr2 = c => c.StartingValue + 45.0f;
 var rotationAnimation = compositor.CreateScalarKeyFrameAnimation();
 rotationAnimation.InsertExpressionKeyFrame(1.0f, expr2);
 rotationAnimation.Duration = TimeSpan.FromSeconds(3);
-
 ```
 
 #### Example 4
@@ -218,8 +207,6 @@ public static void StopAnimation(this CompositionObject compositionObject,
             Expression<Func<object>> expression);
 
 public static string ScaleXY(this CompositionObject compositionObject);
-
-
 ```
 
 The method **ScaleXY** is a dummy method to specify that the animation has to be executed on both the **Scale.X** as well as the **Scale.Y** properties of **CompositionObject** simultaneously.
