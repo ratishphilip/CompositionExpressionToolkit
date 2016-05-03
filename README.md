@@ -205,7 +205,50 @@ The following table shows few examples of **Expression&lt;CompositionLambda&lt;T
 |`Vector3` | `c => c.Vector3(propSet.Get<TranslateTransform>("Translation").X, propSet.Get<TranslateTransform>("Translation").Y, 0)` <br /> _[**propSet** is of type **CompositionPropertySet**]_ | `"Vector3(propSet.Translation.X, propSet.Translation.Y, 0)` |
 |`Vector3` | `c => c.Vector3(propSet.Properties.Get<TranslateTransform>("Translation").X, propSet.Properties.Get<TranslateTransform>("Translation").Y, 0)`<br /> _[**propSet** is of type **CompositionPropertySet**]_ | `"Vector3(propSet.Translation.X, propSet.Translation.Y, 0)` |
 
-## 3. ScopedBatchHelper
+## 3. Using Lambda Expressions for StartAnimation & StopAnimation
+
+In order to avoid providing the property names as string, **CompositionExpressionToolkit** provides the following extension methods
+
+```C#
+
+public static void StartAnimation(this CompositionObject compositionObject,
+            Expression<Func<CompositionObject, object>> expression, CompositionAnimation animation);
+
+public static void StopAnimation(this CompositionObject compositionObject,
+            Expression<Func<CompositionObject, object>> expression);
+
+public static string ScaleXY(this CompositionObject compositionObject);
+
+
+```
+
+The method **ScaleXY** is a dummy method to specify that the animation has to be executed on both the **Scale.X** as well as the **Scale.Y** properties of **CompositionObject** simultaneously.
+
+### Examples
+
+The following examples show how lamda expression can be used in the **StartAnimation** and **StopAnimation** extension methods.
+
+#### Example 1
+
+**Without using CompositionExpressionToolkit**
+
+```C#
+rootVisual.StartAnimation("Opacity", fadeInAnimation);
+rootVisual.StartAnimation("RotationAxis.X", rotateAnimation);
+rootVisual.StartAnimation("Scale.XY", scaleAnimation);
+rootVisual.StopAnimation("Offset", offsetAnimation);
+```
+
+**Using CompositionExpressionToolkit**
+
+```C#
+rootVisual.StartAnimation(v => rootVisual.Opacity, fadeInAnimation);
+rootVisual.StartAnimation(v => rootVisual.RotationAxis.X, rotateAnimation);
+rootVisual.StartAnimation(v => rootVisual.Scale.XY(), scaleAnimation);
+rootVisual.StopAnimation(v => rootVisual.Offset, offsetAnimation);
+```
+
+## 4. ScopedBatchHelper
 
 This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the subscribing and unsubscribing process of the **Completed** event internally.
 
@@ -230,7 +273,7 @@ ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation
            BackBtn.IsEnabled = true;
        });
 ```
-## 4. Converting from `double` to `float`
+## 5. Converting from `double` to `float`
 Most of the values which is calculated or derived from the properties of **UIElement** (and its derived classes) are of type **double**. But most of the classes in **Sytem.Numerics** and **Windows.UI.Composition** namespaces require the values to be of type **float**. If you find it tedious adding a `(float)` cast before each and every variable of type **double**, you can call the **.Single** extension method for **System.Double** instead, which converts the **double** into **float**. Ensure that the value of the double variable is between **System.Single.MinValue** and **System.Single.MaxValue** otherwise **ArgumentOutOfRangeException** will be thrown.  
 
 **Note**: _Conversion of a value from **double** to **float** will reduce the precision of the value._  
