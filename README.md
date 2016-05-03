@@ -266,7 +266,7 @@ __Example usage__:
 ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation,
        () => // Action
        {
-           transitionVisual.StartAnimation("Scale.XY", _scaleUpAnimation);
+           transitionVisual.StartAnimation(v => transitionVisual.ScaleXY(), _scaleUpAnimation);
        },
        () => // Post Action
        {
