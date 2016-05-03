@@ -212,10 +212,10 @@ In order to avoid providing the property names as string for **StartAnimation** 
 ```C#
 
 public static void StartAnimation(this CompositionObject compositionObject,
-            Expression<Func<CompositionObject, object>> expression, CompositionAnimation animation);
+            Expression<Func<object>> expression, CompositionAnimation animation);
 
 public static void StopAnimation(this CompositionObject compositionObject,
-            Expression<Func<CompositionObject, object>> expression);
+            Expression<Func<object>> expression);
 
 public static string ScaleXY(this CompositionObject compositionObject);
 
@@ -242,10 +242,10 @@ rootVisual.StopAnimation("Offset", offsetAnimation);
 **Using CompositionExpressionToolkit**
 
 ```C#
-rootVisual.StartAnimation(v => rootVisual.Opacity, fadeInAnimation);
-rootVisual.StartAnimation(v => rootVisual.RotationAxis.X, rotateAnimation);
-rootVisual.StartAnimation(v => rootVisual.ScaleXY(), scaleAnimation);
-rootVisual.StopAnimation(v => rootVisual.Offset, offsetAnimation);
+rootVisual.StartAnimation(() => rootVisual.Opacity, fadeInAnimation);
+rootVisual.StartAnimation(() => rootVisual.RotationAxis.X, rotateAnimation);
+rootVisual.StartAnimation(() => rootVisual.ScaleXY(), scaleAnimation);
+rootVisual.StopAnimation(() => rootVisual.Offset, offsetAnimation);
 ```
 
 ## 4. ScopedBatchHelper
@@ -266,7 +266,7 @@ __Example usage__:
 ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation,
        () => // Action
        {
-           transitionVisual.StartAnimation(v => transitionVisual.ScaleXY(), _scaleUpAnimation);
+           transitionVisual.StartAnimation(() => transitionVisual.ScaleXY(), _scaleUpAnimation);
        },
        () => // Post Action
        {
