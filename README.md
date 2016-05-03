@@ -207,7 +207,7 @@ The following table shows few examples of **Expression&lt;CompositionLambda&lt;T
 
 ## 3. Using Lambda Expressions for StartAnimation & StopAnimation
 
-In order to avoid providing the property names as string, **CompositionExpressionToolkit** provides the following extension methods
+In order to avoid providing the property names as string for **StartAnimation** and **StopAnimation** methods of **CompositionObject**, **CompositionExpressionToolkit** provides the following extension methods
 
 ```C#
 
