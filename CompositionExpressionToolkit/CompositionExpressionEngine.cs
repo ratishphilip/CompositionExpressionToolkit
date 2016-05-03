@@ -161,7 +161,7 @@ namespace CompositionExpressionToolkit
             return compositionExpr;
         }
 
-        public static string ParseExpression(Expression<Func<CompositionObject, object>> expression)
+        public static string ParseExpression(Expression<Func<object>> expression)
         {
             // Reset flags
             _noQuotesForParseConstant = false;
@@ -813,7 +813,7 @@ namespace CompositionExpressionToolkit
 
             return new SimpleExpressionToken(expression.Value.ToString());
         }
-        
+
         /// <summary>
         /// Visits a LambdaExpression
         /// </summary>
@@ -823,21 +823,16 @@ namespace CompositionExpressionToolkit
         {
             var token = new CompositeExpressionToken();
 
-            // ### Customized for Windows.UI.Composition ###
-            // The first parameter should be of type CompositionObject
-            if (expression.Parameters[0].Type == typeof(CompositionObject))
+            if ((expression.Body as BinaryExpression) != null)
             {
-                if ((expression.Body as BinaryExpression) != null)
-                {
-                    _firstParseBinaryExpression = true;
-                }
+                _firstParseBinaryExpression = true;
+            }
 
-                // Expression Body
-                var bodyToken = ParseVisit(expression.Body);
-                if (bodyToken != null)
-                {
-                    token.AddToken(bodyToken);
-                }
+            // Expression Body
+            var bodyToken = ParseVisit(expression.Body);
+            if (bodyToken != null)
+            {
+                token.AddToken(bodyToken);
             }
 
             return token;
@@ -878,8 +873,8 @@ namespace CompositionExpressionToolkit
 
             var token = new CompositeExpressionToken();
             ExpressionToken parent = null;
-            parent = expression.Expression != null ? 
-                        ParseVisit(expression.Expression) : 
+            parent = expression.Expression != null ?
+                        ParseVisit(expression.Expression) :
                         new SimpleExpressionToken(expression.Member.DeclaringType.Name);
 
             if (parent != null)

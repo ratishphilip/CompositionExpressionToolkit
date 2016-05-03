@@ -18,7 +18,7 @@ namespace CompositionExpressionToolkit
         /// <param name="expression">Expression defining the property on which to start the animation</param>
         /// <param name="animation">The animation to execute on the specified property</param>
         public static void StartAnimation(this CompositionObject compositionObject,
-            Expression<Func<CompositionObject, object>> expression, CompositionAnimation animation)
+            Expression<Func<object>> expression, CompositionAnimation animation)
         {
             compositionObject.StartAnimation(CompositionExpressionEngine.ParseExpression(expression), animation);
         }
@@ -31,7 +31,7 @@ namespace CompositionExpressionToolkit
         /// <param name="compositionObject">CompositionObject</param>
         /// <param name="expression">Expression defining the property on which to stop the animation</param>
         public static void StopAnimation(this CompositionObject compositionObject,
-            Expression<Func<CompositionObject, object>> expression)
+            Expression<Func<object>> expression)
         {
             compositionObject.StopAnimation(CompositionExpressionEngine.ParseExpression(expression));
         }
