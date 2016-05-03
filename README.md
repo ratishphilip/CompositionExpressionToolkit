@@ -244,7 +244,7 @@ rootVisual.StopAnimation("Offset", offsetAnimation);
 ```C#
 rootVisual.StartAnimation(v => rootVisual.Opacity, fadeInAnimation);
 rootVisual.StartAnimation(v => rootVisual.RotationAxis.X, rotateAnimation);
-rootVisual.StartAnimation(v => rootVisual.Scale.XY(), scaleAnimation);
+rootVisual.StartAnimation(v => rootVisual.ScaleXY(), scaleAnimation);
 rootVisual.StopAnimation(v => rootVisual.Offset, offsetAnimation);
 ```
 
