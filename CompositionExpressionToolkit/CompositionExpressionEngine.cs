@@ -763,6 +763,15 @@ namespace CompositionExpressionToolkit
         /// <returns>ExpressionToken</returns>
         private static ExpressionToken ParseVisit(BinaryExpression expression)
         {
+            // If it the property of an object, (deriving from CompositionObject)
+            // which is a part of an array of similar objects, is being 
+            // accessed, then no need to further parse this expression
+            if ((expression.NodeType == ExpressionType.ArrayIndex) &&
+                (expression.Type.IsSubclassOf(typeof(CompositionObject))))
+            {
+                return null;
+            }
+
             // Check if it is the outermost BinaryExpression
             // If yes, then no need to add round brackets to 
             // the whole visited expression
@@ -776,13 +785,6 @@ namespace CompositionExpressionToolkit
 
             var leftToken = ParseVisit(expression.Left);
             var rightToken = ParseVisit(expression.Right);
-            if (expression.NodeType == ExpressionType.ArrayIndex)
-            {
-                var arrToken = new CompositeExpressionToken();
-                arrToken.AddToken(leftToken);
-                arrToken.AddToken(new CompositeExpressionToken(rightToken, BracketType.Square));
-                return arrToken;
-            }
 
             string symbol;
             if (!BinaryExpressionStrings.TryGetValue(expression.NodeType, out symbol))
