@@ -234,8 +234,41 @@ rootVisual.StartAnimation(() => rootVisual.RotationAxis.X, rotateAnimation);
 rootVisual.StartAnimation(() => rootVisual.ScaleXY(), scaleAnimation);
 rootVisual.StopAnimation(() => rootVisual.Offset, offsetAnimation);
 ```
+## 4. Using Arrays within Lambda Expression for defining animations
+You can now use arrays within the **CompositionLambda<T>** expressions for defining the mathematical expression for animations.
 
-## 4. ScopedBatchHelper
+### Example
+
+```C#
+private void Page_Loaded(object sender, RoutedEventArgs e)
+{
+    _gearVisuals = new Visual[Container.Children.Count()];
+    
+    for (int i = 0; i < _gearVisuals.Length; i++)
+    {
+        AddGear(i, Container.Children.ElementAt(i) as Image);
+
+        if (i == 0)
+        {
+            _compositor = _gearVisuals[0].Compositor;
+        }
+        else
+        {
+            ConfigureGearAnimation(i, i-1);
+        }
+    }
+}
+
+private void ConfigureGearAnimation(int current, int previous)
+{
+    Expression<CompositionLambda<float>> expr = c => -_gearVisuals[previous].RotationAngleInDegrees;
+    _rotationExpression = _compositor.CreateExpressionAnimation(expr);
+    
+    _gearVisuals[current].StartAnimation(() => _gearVisuals[current].RotationAngleInDegrees, _rotationExpression);
+}
+```
+
+## 5. ScopedBatchHelper
 
 This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the subscribing and unsubscribing process of the **Completed** event internally.
 
@@ -260,7 +293,7 @@ ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation
            BackBtn.IsEnabled = true;
        });
 ```
-## 5. Converting from `double` to `float`
+## 6. Converting from `double` to `float`
 Most of the values which is calculated or derived from the properties of **UIElement** (and its derived classes) are of type **double**. But most of the classes in **Sytem.Numerics** and **Windows.UI.Composition** namespaces require the values to be of type **float**. If you find it tedious adding a `(float)` cast before each and every variable of type **double**, you can call the **.Single** extension method for **System.Double** instead, which converts the **double** into **float**. Ensure that the value of the double variable is between **System.Single.MinValue** and **System.Single.MaxValue** otherwise **ArgumentOutOfRangeException** will be thrown.  
 
 **Note**: _Conversion of a value from **double** to **float** will reduce the precision of the value._  
