@@ -211,6 +211,12 @@ namespace CompositionExpressionToolkit
         /// <returns>ExpressionToken</returns>
         private static ExpressionToken Visit(BinaryExpression expression)
         {
+            // Is this an Array Index expression?
+            if (expression.NodeType == ExpressionType.ArrayIndex)
+            {
+                return VisitArrayExpression(expression);
+            }
+
             // Check if it is the outermost BinaryExpression
             // If yes, then no need to add round brackets to 
             // the whole visited expression
@@ -224,13 +230,6 @@ namespace CompositionExpressionToolkit
 
             var leftToken = Visit(expression.Left);
             var rightToken = Visit(expression.Right);
-            if (expression.NodeType == ExpressionType.ArrayIndex)
-            {
-                var arrToken = new CompositeExpressionToken();
-                arrToken.AddToken(leftToken);
-                arrToken.AddToken(new CompositeExpressionToken(rightToken, BracketType.Square));
-                return arrToken;
-            }
 
             string symbol;
             if (!BinaryExpressionStrings.TryGetValue(expression.NodeType, out symbol))
@@ -720,6 +719,102 @@ namespace CompositionExpressionToolkit
         {
             // Not supported right now
             return null;
+        }
+
+        /// <summary>
+        /// Visits a BinaryExpression in which an array index is being accessed
+        /// </summary>
+        /// <param name="expression">BinaryExpression</param>
+        /// <returns>ExpressionToken</returns>
+        private static ExpressionToken VisitArrayExpression(BinaryExpression expression)
+        {
+            var arrayExpr = expression.Left as MemberExpression;
+            var arrayName = arrayExpr?.Member.Name;
+            // Get the array index
+            var index = VisitArrayIndex(expression.Right);
+            // Is a valid index obtained?
+            if (index == -1)
+            {
+                throw new ArgumentException($"Invalid value parsed for the index of the '{arrayName}' array!");
+            }
+
+            // Generate key name to insert into the _parameters dictionary
+            var paramName = $"{arrayName}_{index}";
+
+            if ((!_parameters.ContainsKey(paramName)) && ((arrayExpr?.Expression as ConstantExpression) != null))
+            {
+                // Is the array a field?
+                if ((arrayExpr.Member as FieldInfo) != null)
+                {
+                    // Get the element in the 'index' position in the array
+                    var arrayValue = ((FieldInfo)arrayExpr.Member).GetValue(((ConstantExpression)arrayExpr.Expression).Value);
+                    if (arrayValue.GetType().IsArray)
+                    {
+                        var array = arrayValue as Array;
+                        if (array != null)
+                        {
+                            // Add to the _parameters dictionary
+                            _parameters.Add(paramName, array.GetValue(index));
+                        }
+                    }
+                }
+                // Or is the array a Property?
+                else if ((arrayExpr.Member as PropertyInfo) != null)
+                {
+                    // Get the element in the 'index' position in the array
+                    var arrayValue =
+                        ((PropertyInfo)arrayExpr.Member).GetValue(((ConstantExpression)arrayExpr.Expression).Value);
+                    if (arrayValue.GetType().IsArray)
+                    {
+                        var array = arrayValue as Array;
+                        if (array != null)
+                        {
+                            // Add to the _parameters dictionary
+                            _parameters.Add(paramName, array.GetValue(index));
+                        }
+                    }
+                }
+            }
+
+            return new SimpleExpressionToken(paramName);
+        }
+
+        /// <summary>
+        /// Extracts the array index value as an integer. The expression can be either
+        /// a ConstantExpression or a MemberExpression. It is usually the right-side 
+        /// expression of a BinaryExpression in which an array index is being accessed.
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <returns>Index</returns>
+        private static int VisitArrayIndex(Expression expression)
+        {
+            var result = -1;
+
+            // Is it a ConstantExpression
+            if ((expression as ConstantExpression) != null)
+            {
+                result = (int)((ConstantExpression)expression).Value;
+            }
+            // Or is it a MemberExpression
+            else if ((expression as MemberExpression) != null)
+            {
+                var membExpr = (MemberExpression)expression;
+                var constExpr = membExpr.Expression as ConstantExpression;
+
+                if (constExpr?.Value != null)
+                {
+                    if ((membExpr.Member as FieldInfo) != null)
+                    {
+                        result = (int)((FieldInfo)membExpr.Member).GetValue(constExpr.Value);
+                    }
+                    else if ((membExpr.Member as PropertyInfo) != null)
+                    {
+                        result = (int)((PropertyInfo)membExpr.Member).GetValue(constExpr.Value);
+                    }
+                }
+            }
+
+            return result;
         }
 
         #endregion

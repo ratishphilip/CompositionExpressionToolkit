@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CompositionExpressionToolkit</id>
-    <version>0.1.8.2</version>
+    <version>0.1.9.0</version>
     <title>CompositionExpressionToolkit</title>
     <authors>Ratish Philip</authors>
     <owners>Ratish Philip</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/ratishphilip/CompositionExpressionToolkit</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Toolkit containing a collection of Extension methods and Helper classes which make it easier to use Windows.UI.Composition features.</description>
-    <releaseNotes>Added lambda expression support for StartAnimation and StopAnimation methods of CompositionObject.</releaseNotes>
+    <releaseNotes>Added support for using Arrays in Lambda Expression.</releaseNotes>
     <copyright>Copyright 2016 Ratish Philip</copyright>
   </metadata>
 </package>
