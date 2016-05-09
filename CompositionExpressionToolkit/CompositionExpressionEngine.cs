@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Windows.Graphics.Effects;
 using Windows.UI.Composition;
 
 namespace CompositionExpressionToolkit
@@ -23,8 +24,9 @@ namespace CompositionExpressionToolkit
         #region Fields
 
         private static readonly Dictionary<ExpressionType, string> BinaryExpressionStrings;
+        private static readonly IEnumerable<Type> ExpressionTypes;
         private static readonly Dictionary<Type, MethodInfo> VisitMethods;
-        private static readonly Dictionary<Type, MethodInfo> ParseVisitMethods;
+        private static readonly Dictionary<Type, MethodInfo> ParseMethods;
         private static readonly Type[] Floatables;
 
         private static bool _noQuotesForConstant;
@@ -99,38 +101,39 @@ namespace CompositionExpressionToolkit
                               };
 
             // Get all the types which derive from Expression or MemberBinding
-            var expressionTypes = typeof(Expression)
-                                        .GetTypeInfo()
-                                        .Assembly
-                                        .GetTypes()
-                                        .Where(t => t.IsSubclassOf(typeof(Expression))
-                                               || t.IsSubclassOf(typeof(MemberBinding)));
+            ExpressionTypes = typeof(Expression)
+                                    .GetTypeInfo()
+                                    .Assembly
+                                    .GetTypes()
+                                    .Where(t => t.IsSubclassOf(typeof(Expression))
+                                            || t.IsSubclassOf(typeof(MemberBinding)));
 
+
+            // Get all the Visit Methods
+            VisitMethods = GetMethods("Visit");
+            // Get all the Parse Methods
+            ParseMethods = GetMethods("Parse");
+        }
+
+        /// <summary>
+        /// Gets the methods having the given method name and whose first parameter 
+        /// matches one of the types in ExpressionTypes.
+        /// </summary>
+        /// <param name="methodName">Method name</param>
+        /// <returns>Dictionary of Expression Type and MethodInfo</returns>
+        private static Dictionary<Type, MethodInfo> GetMethods(string methodName)
+        {
             // Get all the private static Visit methods defined in the CompositionExpressionEngine
-            var visitMethods = typeof(CompositionExpressionEngine)
+            var methods = typeof(CompositionExpressionEngine)
                                     .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
-                                    .Where(m => m.Name == "Visit");
+                                    .Where(m => m.Name == methodName);
 
-            // Get the list of Visit methods whose first parameter matches one of the types in expressionTypes
-            VisitMethods = expressionTypes.Join(visitMethods,
-                                                t => t,                                  // Selector for Expression Types
-                                                m => m.GetParameters()[0].ParameterType, // Selector for Expression Engine Methods
-                                                (t, m) => new { Type = t, Method = m })  // Result Selector
-                                          .ToDictionary(t => t.Type, t => t.Method);
-
-
-            // Get all the private static ParseVisit methods defined in the CompositionExpressionEngine
-            var parseVisitMethods = typeof(CompositionExpressionEngine)
-                                    .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
-                                    .Where(m => m.Name == "ParseVisit");
-
-            // Get the list of ParseVisit methods whose first parameter matches one of the types in expressionTypes
-            ParseVisitMethods = expressionTypes.Join(parseVisitMethods,
-                                                     t => t,                                  // Selector for Expression Types
-                                                     m => m.GetParameters()[0].ParameterType, // Selector for Expression Engine Methods
-                                                     (t, m) => new { Type = t, Method = m })  // Result Selector
-                                               .ToDictionary(t => t.Type, t => t.Method);
-
+            // Get the list of methods whose first parameter matches one of the types in ExpressionTypes
+            return ExpressionTypes.Join(methods,
+                                        t => t,                                  // Selector for Expression Types
+                                        m => m.GetParameters()[0].ParameterType, // Selector for ExpressionEngine Methods
+                                        (t, m) => new { Type = t, Method = m })  // Result Selector
+                                  .ToDictionary(t => t.Type, t => t.Method);     // Convert to Dictionary<Type, MethodInfo>
         }
 
         #endregion
@@ -144,7 +147,7 @@ namespace CompositionExpressionToolkit
         /// <typeparam name="T">Type of the Expression</typeparam>
         /// <param name="expression">Expression</param>
         /// <returns>CompositionExpressionResult</returns>
-        public static CompositionExpressionResult CreateCompositionExpression<T>(Expression<CompositionLambda<T>> expression)
+        internal static CompositionExpressionResult CreateCompositionExpression<T>(Expression<CompositionLambda<T>> expression)
         {
             // Reset flags
             _noQuotesForConstant = false;
@@ -161,13 +164,26 @@ namespace CompositionExpressionToolkit
             return compositionExpr;
         }
 
-        public static string ParseExpression(Expression<Func<object>> expression)
+        /// <summary>
+        /// Parses the given expression and converts it into an appriopriate string.
+        /// This is used in the following scenarios
+        /// 1. To specify the animatable property on a CompositionObject derived object
+        ///    for the StartAnimation and StopAnimation methods.
+        /// 2. To specify an animatable property of type IGraphicEffect or IGraphicEffectSource
+        ///    for the CreateEffectFactory method of Compositor.
+        /// 3. To specify an animatable property of type IGraphicEffect or IGraphicEffectSource
+        ///    for the StartAnimation and StopAnimation methods of a CompositionEffectBrush.
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <returns>String</returns>
+        internal static string ParseExpression(Expression<Func<object>> expression)
         {
             // Reset flags
             _noQuotesForParseConstant = false;
             _firstParseBinaryExpression = false;
 
-            return ParseVisit(expression).ToString();
+            var exprString = Parse(expression).ToString();
+            return exprString;
         }
 
         #endregion
@@ -175,7 +191,9 @@ namespace CompositionExpressionToolkit
         #region Visit methods
 
         /// <summary>
-        /// Visits an Expression
+        /// Visits an Expression. This method acts as a router and
+        /// based on the specific type of Expression, the appropriate
+        /// Visit method is called.
         /// </summary>
         /// <param name="expression">Expression</param>
         /// <returns>ExpressionToken</returns>
@@ -235,12 +253,9 @@ namespace CompositionExpressionToolkit
             if (!BinaryExpressionStrings.TryGetValue(expression.NodeType, out symbol))
                 return new SimpleExpressionToken("");
 
-            // This check is done to avoid wrapping the final ExpressionToken in Round Brackets
-            var bracketType = BracketType.Round;
-            if (noBrackets)
-            {
-                bracketType = BracketType.None;
-            }
+            // This check is done to avoid wrapping the final ExpressionToken 
+            // in Round Brackets if the outermost expression is a BinaryExpression
+            var bracketType = noBrackets ? BracketType.None : BracketType.Round;
 
             var token = new CompositeExpressionToken(bracketType);
             token.AddToken($"{leftToken} {symbol} {rightToken}");
@@ -728,6 +743,9 @@ namespace CompositionExpressionToolkit
         /// <returns>ExpressionToken</returns>
         private static ExpressionToken VisitArrayExpression(BinaryExpression expression)
         {
+            // In a BinaryExpression for ArrayIndex, the Left expression will be the
+            // MemberExpression to access the array object and the Right expression will
+            // be the index number or string.
             var arrayExpr = expression.Left as MemberExpression;
             var arrayName = arrayExpr?.Member.Name;
             // Get the array index
@@ -819,14 +837,16 @@ namespace CompositionExpressionToolkit
 
         #endregion
 
-        #region ParseVisit Methods
+        #region Parse Methods
 
         /// <summary>
-        /// Visits an Expression
+        /// Visits an Expression. This method acts as a router and
+        /// based on the specific type of Expression, the appropriate
+        /// Visit method is called.
         /// </summary>
         /// <param name="expression">Expression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(Expression expression)
+        private static ExpressionToken Parse(Expression expression)
         {
             if (expression == null)
             {
@@ -841,8 +861,8 @@ namespace CompositionExpressionToolkit
 
             // Get the Visit method whose first parameter best matches the type of baseType
             MethodInfo methodInfo;
-            if (ParseVisitMethods.TryGetValue(baseType, out methodInfo) ||
-                ((baseType.BaseType() != null) && ParseVisitMethods.TryGetValue(baseType.BaseType(), out methodInfo)))
+            if (ParseMethods.TryGetValue(baseType, out methodInfo) ||
+                ((baseType.BaseType() != null) && ParseMethods.TryGetValue(baseType.BaseType(), out methodInfo)))
             {
                 // Once a matching Visit method is found, Invoke it!
                 return (ExpressionToken)methodInfo.Invoke(null, new object[] { expression });
@@ -856,7 +876,7 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expression">BinaryExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(BinaryExpression expression)
+        private static ExpressionToken Parse(BinaryExpression expression)
         {
             // If it the property of an object, (deriving from CompositionObject)
             // which is a part of an array of similar objects, is being 
@@ -878,12 +898,12 @@ namespace CompositionExpressionToolkit
                 _firstParseBinaryExpression = false;
             }
 
-            var leftToken = ParseVisit(expression.Left);
-            var rightToken = ParseVisit(expression.Right);
+            var leftToken = Parse(expression.Left);
+            var rightToken = Parse(expression.Right);
 
             string symbol;
             if (!BinaryExpressionStrings.TryGetValue(expression.NodeType, out symbol))
-                return new SimpleExpressionToken("");
+                return null;
 
             // This check is done to avoid wrapping the final ExpressionToken in Round Brackets
             var bracketType = noBrackets ? BracketType.None : BracketType.Round;
@@ -899,7 +919,7 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expression">ConstantExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(ConstantExpression expression)
+        private static ExpressionToken Parse(ConstantExpression expression)
         {
             if (expression.Value == null)
                 return new SimpleExpressionToken("null");
@@ -916,23 +936,15 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expression">LambdaExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(LambdaExpression expression)
+        private static ExpressionToken Parse(LambdaExpression expression)
         {
-            var token = new CompositeExpressionToken();
-
             if ((expression.Body as BinaryExpression) != null)
             {
                 _firstParseBinaryExpression = true;
             }
 
             // Expression Body
-            var bodyToken = ParseVisit(expression.Body);
-            if (bodyToken != null)
-            {
-                token.AddToken(bodyToken);
-            }
-
-            return token;
+            return Parse(expression.Body);
         }
 
         /// <summary>
@@ -940,9 +952,24 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expression">MemberExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(MemberExpression expression)
+        private static ExpressionToken Parse(MemberExpression expression)
         {
             // ### Customized for Windows.UI.Composition ###
+            // If the the expression type is a class implementing the IGraphicEffect interface or
+            // the IGraphicEffectSource interface and the instance object of this expression has
+            // a Name property, then return the value of Name property of this class and 
+            // proceed no further in the expression. 
+            if (typeof(IGraphicsEffect).IsAssignableFrom(expression.Type) ||
+                typeof(IGraphicsEffectSource).IsAssignableFrom(expression.Type))
+            {
+                // Get the instance object for the expression
+                var sourceObj = GetObject(expression);
+                // Get its Name property value
+                var name = sourceObj?.GetPropertyValue("Name") as string;
+
+                return String.IsNullOrWhiteSpace(name) ? null : new SimpleExpressionToken(name);
+            }
+
             // Check if this expression is accessing the StartingValue or FinalValue
             // Property of CompositionExpressionContext<T>
             if (((expression.Member as PropertyInfo) != null) &&
@@ -959,19 +986,19 @@ namespace CompositionExpressionToolkit
                 (expression.Type == typeof(CompositionPropertySet) && (expression.Member.Name == "Properties"))
                 && (expression.Expression is MemberExpression) && (expression.Expression.Type == typeof(CompositionPropertySet)))
             {
-                return ParseVisit(expression.Expression);
+                return Parse(expression.Expression);
             }
 
             // If the expression type is a subclass of CompositionObject, no need to proceed further
-            // because the ParseExpression is called on an object which is a subclass of CompositionObject
-            // and we just need the property access string.
+            // because in one of the scenarios, the ParseExpression API is called on an object which
+            // is a subclass of CompositionObject and we just need the property access string.
             if (expression.Type.IsSubclassOf(typeof(CompositionObject)))
                 return null;
 
             var token = new CompositeExpressionToken();
-            ExpressionToken parent = null;
-            parent = expression.Expression != null ?
-                        ParseVisit(expression.Expression) :
+            // Visit the parent
+            var parent = expression.Expression != null ?
+                        Parse(expression.Expression) :
                         new SimpleExpressionToken(expression.Member.DeclaringType.Name);
 
             if (parent != null)
@@ -992,7 +1019,7 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expression">MethodCallExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(MethodCallExpression expression)
+        private static ExpressionToken Parse(MethodCallExpression expression)
         {
             var isExtensionMethod = expression.Method.IsDefined(typeof(ExtensionAttribute));
             var methodName = expression.Method.Name;
@@ -1006,25 +1033,25 @@ namespace CompositionExpressionToolkit
                 // value, no need to print it.
                 if (expression.Method.DeclaringType == typeof(DoubleExtensions))
                 {
-                    token.AddToken(ParseVisit(expression.Arguments[0]));
+                    token.AddToken(Parse(expression.Arguments[0]));
                 }
                 // If the extension method being called belongs to CompositionPropertySetExtensions
                 // then no need to add the method name
                 else if (expression.Method.DeclaringType == typeof(CompositionPropertySetExtensions))
                 {
-                    var parent = ParseVisit(expression.Arguments[0]);
+                    var parent = Parse(expression.Arguments[0]);
                     if (parent != null)
                     {
                         token.AddToken(parent);
                         token.AddToken(".");
                         _noQuotesForParseConstant = true;
-                        token.AddToken(ParseVisit(expression.Arguments[1]));
+                        token.AddToken(Parse(expression.Arguments[1]));
                         _noQuotesForParseConstant = false;
                     }
                 }
                 else
                 {
-                    var parent = ParseVisit(expression.Arguments[0]);
+                    var parent = Parse(expression.Arguments[0]);
                     if (parent != null)
                     {
                         token.AddToken(parent);
@@ -1059,7 +1086,7 @@ namespace CompositionExpressionToolkit
                 }
                 else
                 {
-                    token.AddToken(ParseVisit(expression.Object));
+                    token.AddToken(Parse(expression.Object));
                 }
 
                 // Is it an array index based access?
@@ -1067,7 +1094,7 @@ namespace CompositionExpressionToolkit
                     (expression.Method.DeclaringType.GetProperties()
                         .FirstOrDefault(p => p.GetAccessors().Contains(expression.Method)) != null))
                 {
-                    token.AddToken(new CompositeExpressionToken(expression.Arguments.Select(ParseVisit), BracketType.Square, true));
+                    token.AddToken(new CompositeExpressionToken(expression.Arguments.Select(Parse), BracketType.Square, true));
                 }
                 else
                 {
@@ -1083,7 +1110,7 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expression">ParameterExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(ParameterExpression expression)
+        private static ExpressionToken Parse(ParameterExpression expression)
         {
             var name = expression.Name ?? "<param>";
             return new SimpleExpressionToken(CleanIdentifier(name));
@@ -1094,11 +1121,11 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <param name="expression">UnaryExpression</param>
         /// <returns>ExpressionToken</returns>
-        private static ExpressionToken ParseVisit(UnaryExpression expression)
+        private static ExpressionToken Parse(UnaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.Quote)
             {
-                return ParseVisit(expression.Operand);
+                return Parse(expression.Operand);
             }
 
             var token = new CompositeExpressionToken();
@@ -1108,8 +1135,10 @@ namespace CompositionExpressionToolkit
                 case ExpressionType.Convert:
                 case ExpressionType.ConvertChecked:
                 case ExpressionType.TypeAs:
-                    token.AddToken(ParseVisit(expression.Operand));
+                    token.AddToken(Parse(expression.Operand));
                     break;
+                default:
+                    return null;
             }
 
             return token;
@@ -1147,6 +1176,111 @@ namespace CompositionExpressionToolkit
 
             var paramType = inputType.GenericTypeArguments[0];
             return (inputType == typeof(CompositionExpressionContext<>).MakeGenericType(paramType));
+        }
+
+        /// <summary>
+        /// Gets the instance object for the given expression
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <returns>Object</returns>
+        public static object GetObject(Expression expression)
+        {
+            var memberStack = new Stack<MemberInfo>();
+
+            // Move from leaf expression to the root expression
+            // as long as it is a MemberExpression or 
+            // UnaryExpression(convert or cast operations only)
+            do
+            {
+                if ((expression as MemberExpression) != null)
+                {
+                    var memberExpr = expression as MemberExpression;
+                    memberStack.Push(memberExpr.Member);
+                    expression = memberExpr.Expression;
+                }
+                else if ((expression as UnaryExpression) != null)
+                {
+                    if ((expression.NodeType == ExpressionType.Convert) ||
+                        (expression.NodeType == ExpressionType.ConvertChecked) ||
+                        (expression.NodeType == ExpressionType.TypeAs))
+                    {
+                        expression = ((UnaryExpression)expression).Operand;
+                    }
+                    else
+                    {
+                        // Any other type of Expression is not supported right now!
+                        throw new ArgumentException(
+                            "This expression is not supported in CompositionExpressionToolkit!", nameof(expression));
+                    }
+                }
+            }
+            while ((expression is MemberExpression) || (expression is UnaryExpression));
+
+            var resultObject = (object)null;
+            // If the expression is null then it means the root is a static member
+            if (expression == null)
+            {
+                var memberInfo = memberStack.Pop();
+                if ((memberInfo as PropertyInfo) != null)
+                {
+                    // Property will be (public or non-public) and static
+                    resultObject = memberInfo.DeclaringType
+                                             .GetProperty(memberInfo.Name, BindingFlags.NonPublic |
+                                                                           BindingFlags.Public |
+                                                                           BindingFlags.Static)
+                                             ?.GetValue(null);
+                }
+                else if ((memberInfo as FieldInfo) != null)
+                {
+                    // Field will be (public or non-public) and static
+                    var flags = BindingFlags.Static;
+                    flags |= ((FieldInfo)memberInfo).IsPublic ? BindingFlags.Public : BindingFlags.NonPublic;
+
+                    resultObject = memberInfo.DeclaringType
+                                             .GetField(memberInfo.Name, flags)
+                                             ?.GetValue(null);
+                }
+            }
+            // If the root is a ConstantExpression, then its Value represents the root object
+            else if ((expression as ConstantExpression) != null)
+            {
+                var constExpr = expression as ConstantExpression;
+                resultObject = constExpr.Value;
+            }
+            else
+            {
+                // Any other type of Expression is not supported right now!
+                throw new ArgumentException(
+                            "This expression is not supported in CompositionExpressionToolkit!", nameof(expression));
+            }
+
+            // Move from root member info to the leaf member info and get the 
+            // corresponding object for each
+            while (memberStack.Any() && (resultObject != null))
+            {
+                var mi = memberStack.Pop();
+                if ((mi as PropertyInfo) != null)
+                {
+                    // Property can be (public or non-public) and (static or instance)
+                    resultObject = resultObject.GetType()
+                                               .GetProperty(mi.Name, BindingFlags.Static | BindingFlags.Instance | 
+                                                                     BindingFlags.NonPublic | BindingFlags.Public)
+                                               ?.GetValue(resultObject, null);
+                }
+                else if ((mi as FieldInfo) != null)
+                {
+                    // Field can be (public or non-public) and (static or instance)
+                    var fieldInfo = mi as FieldInfo;
+                    var flags = fieldInfo.IsStatic ? BindingFlags.Static : BindingFlags.Instance;
+                    flags |= fieldInfo.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic;
+
+                    resultObject = resultObject.GetType()
+                                               .GetField(mi.Name, flags)
+                                               ?.GetValue(resultObject);
+                }
+            }
+
+            return resultObject;
         }
 
         #endregion

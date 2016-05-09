@@ -88,8 +88,7 @@ namespace CompositionExpressionToolkit
     public abstract partial class CompositionExpressionEngine
     {
         protected CompositionExpressionEngine() { }
-        public static CompositionExpressionToolkit.CompositionExpressionResult CreateCompositionExpression<T>(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(CompositionExpressionToolkit.CompositionExpressionResult); }
-        public static string ParseExpression(System.Linq.Expressions.Expression<System.Func<object>> expression) { return default(string); }
+        public static object GetObject(System.Linq.Expressions.Expression expression) { return default(object); }
     }
     public partial class CompositionExpressionResult
     {
@@ -112,6 +111,7 @@ namespace CompositionExpressionToolkit
     }
     public static partial class CompositorExtensions
     {
+        public static Windows.UI.Composition.CompositionEffectFactory CreateEffectFactory(this Windows.UI.Composition.Compositor compositor, Windows.Graphics.Effects.IGraphicsEffect graphicsEffect, params System.Linq.Expressions.Expression<System.Func<object>>[] animatablePropertyExpressions) { return default(Windows.UI.Composition.CompositionEffectFactory); }
         public static Windows.UI.Composition.ExpressionAnimation CreateExpressionAnimation<T>(this Windows.UI.Composition.Compositor compositor, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.ExpressionAnimation); }
     }
     public static partial class DoubleExtensions
@@ -130,7 +130,7 @@ namespace CompositionExpressionToolkit
         public static System.Reflection.PropertyInfo GetProperty(this System.Type type, string propertyName) { return default(System.Reflection.PropertyInfo); }
         public static object GetPropertyValue(this object instance, string propertyValue) { return default(object); }
         public static System.Reflection.TypeInfo GetTypeInfo(this System.Type type) { return default(System.Reflection.TypeInfo); }
-        public static bool IsAssignableFrom(this System.Type type, System.Type parentType) { return default(bool); }
+        public static bool IsClass(this System.Type type) { return default(bool); }
         public static bool IsEnum(this System.Type type) { return default(bool); }
         public static bool IsGenericType(this System.Type type) { return default(bool); }
         public static bool IsPrimitive(this System.Type type) { return default(bool); }

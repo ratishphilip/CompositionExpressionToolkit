@@ -1,4 +1,8 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Windows.Graphics.Effects;
 using Windows.UI.Composition;
 
 namespace CompositionExpressionToolkit
@@ -24,6 +28,22 @@ namespace CompositionExpressionToolkit
             animation.SetParameters(result.Parameters);
 
             return animation;
+        }
+
+        /// <summary>
+        /// Creates an instance of CompositionEffectFactory.
+        /// </summary>
+        /// <param name="compositor">Compositor</param>
+        /// <param name="graphicsEffect">The type of effect to create.</param>
+        /// <param name="animatablePropertyExpressions">List of Expression each specifying 
+        /// an animatable property</param>
+        /// <returns>The created CompositionEffectFactory object.</returns>
+        public static CompositionEffectFactory CreateEffectFactory(this Compositor compositor,
+            IGraphicsEffect graphicsEffect, params Expression<Func<object>>[] animatablePropertyExpressions)
+        {
+            var animatableProperties = animatablePropertyExpressions.Select(CompositionExpressionEngine.ParseExpression).ToArray();
+
+            return compositor.CreateEffectFactory(graphicsEffect, animatableProperties);
         }
     }
 }
