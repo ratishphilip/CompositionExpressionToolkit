@@ -235,7 +235,7 @@ rootVisual.StartAnimation(() => rootVisual.ScaleXY(), scaleAnimation);
 rootVisual.StopAnimation(() => rootVisual.Offset, offsetAnimation);
 ```
 ## 4. Using Arrays within Lambda Expression for defining animations
-You can now use arrays within the **CompositionLambda<T>** expressions for defining the mathematical expression for animations.
+You can use arrays within the **CompositionLambda<T>** expressions for defining the mathematical expression for animations.
 
 ### Example
 
@@ -267,8 +267,67 @@ private void ConfigureGearAnimation(int current, int previous)
     _gearVisuals[current].StartAnimation(() => _gearVisuals[current].RotationAngleInDegrees, _rotationExpression);
 }
 ```
+## 5. Using Lambda Expression for creating Effects and animating CompositionEffectBrushes
+You can use lambda expressions to create Effects and animate CompositionEffectBrushes.
 
-## 5. ScopedBatchHelper
+### Example
+
+**Without using CompositionExpressionToolkit**
+
+```C#
+private ArithmeticCompositeEffect _graphicsEffect;
+
+_graphicsEffect = new ArithmeticCompositeEffect
+{
+    Name = "Arithmetic",
+    Source1 = new CompositionEffectSourceParameter("ImageSource"),
+    Source1Amount = .25f,
+    Source2 = new Transform2DEffect
+    {
+        Name = "LightMapTransform",
+        Source = new CompositionEffectSourceParameter("LightMap")
+    },
+    Source2Amount = 0,
+    MultiplyAmount = 1
+};
+
+var effectFactory = _compositor.CreateEffectFactory(_graphicsEffect, 
+						new [] { "LightMapTransform.TransformMatrix" });
+
+var brush = effectFactory.CreateBrush();
+
+brush.StartAnimation("LightMapTransform.TransformMatrix", _transformExpression);
+```
+
+**Using CompositionExpressionToolkit**
+
+```C#
+private ArithmeticCompositeEffect _graphicsEffect;
+
+_graphicsEffect = new ArithmeticCompositeEffect
+{
+    Name = "Arithmetic",
+    Source1 = new CompositionEffectSourceParameter("ImageSource"),
+    Source1Amount = .25f,
+    Source2 = new Transform2DEffect
+    {
+        Name = "LightMapTransform",
+        Source = new CompositionEffectSourceParameter("LightMap")
+    },
+    Source2Amount = 0,
+    MultiplyAmount = 1
+};
+
+var effectFactory = _compositor.CreateEffectFactory(_graphicsEffect, 
+						() => ((Transform2DEffect)_graphicsEffect.Source2).TransformMatrix);
+
+var brush = effectFactory.CreateBrush();
+
+brush.StartAnimation(() => ((Transform2DEffect)_graphicsEffect.Source2).TransformMatrix, 
+						_transformExpression);
+```
+
+## 6. ScopedBatchHelper
 
 This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the subscribing and unsubscribing process of the **Completed** event internally.
 
