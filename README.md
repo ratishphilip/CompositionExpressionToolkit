@@ -267,8 +267,8 @@ private void ConfigureGearAnimation(int current, int previous)
     _gearVisuals[current].StartAnimation(() => _gearVisuals[current].RotationAngleInDegrees, _rotationExpression);
 }
 ```
-## 5. Using Lambda Expression for creating Effects and animating CompositionEffectBrushes
-You can use lambda expressions to create Effects and animate CompositionEffectBrushes.
+## 5. Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes
+You can use lambda expressions to create EffectFactory and animate CompositionEffectBrushes.
 
 ### Example
 
