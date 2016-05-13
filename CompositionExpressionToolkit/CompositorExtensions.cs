@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Windows.Graphics.Effects;
@@ -44,6 +43,17 @@ namespace CompositionExpressionToolkit
             var animatableProperties = animatablePropertyExpressions.Select(CompositionExpressionEngine.ParseExpression).ToArray();
 
             return compositor.CreateEffectFactory(graphicsEffect, animatableProperties);
+        }
+
+        /// <summary>
+        /// Creates an instance of KeyFrameAnimation&lt;T&gt;
+        /// </summary>
+        /// <typeparam name="T">Type of the encapsulated KeyFrameAnimation</typeparam>
+        /// <param name="compositor">Compositor</param>
+        /// <returns>KeyFrameAnimation&lt;T&gt;</returns>
+        public static KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Compositor compositor)
+        {
+            return new KeyFrameAnimation<T>(KeyFrameAnimationHelper.CreateAnimation<T>(compositor));
         }
     }
 }

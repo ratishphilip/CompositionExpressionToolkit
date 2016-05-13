@@ -111,6 +111,7 @@
     <Compile Include="CompositionExpressionResult.cs" />
     <Compile Include="CompositionExpressionContext.cs" />
     <Compile Include="CompositionExpressionEngine.cs" />
+    <Compile Include="CompositionKeyFrame.cs" />
     <Compile Include="CompositionObjectExtensions.cs" />
     <Compile Include="CompositionPropertySetExtensions.cs" />
     <Compile Include="CompositorExtensions.cs" />

@@ -72,31 +72,13 @@ namespace CompositionExpressionToolkit
         /// </summary>
         /// <typeparam name="T">Type of the Expression</typeparam>
         /// <param name="animation">KeyFrameAnimation</param>
-        /// <param name="normalizedProgressKey"></param>
-        /// <param name="expression">Expression</param>
+        /// <param name="normalizedProgressKey">The time the key frame should occur at, expressed as 
+        /// a percentage of the animation Duration. Allowed value is from 0.0 to 1.0.</param>
+        /// <param name="expression">The expression used to calculate the value of the key frame.</param>
+        /// <param name="easingFunction">Easing Function (optional)</param>
         /// <returns>KeyFrameAnimation</returns>
         public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
-            Expression<CompositionLambda<T>> expression)
-        {
-            var result = CompositionExpressionEngine.CreateCompositionExpression(expression);
-            animation.InsertExpressionKeyFrame(normalizedProgressKey, result.Expression);
-            animation.SetParameters(result.Parameters);
-
-            return animation;
-        }
-
-        /// <summary>
-        /// Inserts a KeyFrame in the KeyFrameAnimation by converting
-        /// the given Expression to appropriate string
-        /// </summary>
-        /// <typeparam name="T">Type of the Expression</typeparam>
-        /// <param name="animation">KeyFrameAnimation</param>
-        /// <param name="normalizedProgressKey"></param>
-        /// <param name="expression">Expression</param>
-        /// <param name="easingFunction">Easing Function</param>
-        /// <returns>KeyFrameAnimation</returns>
-        public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, float normalizedProgressKey,
-            Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction)
+            Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction = null)
         {
             var result = CompositionExpressionEngine.CreateCompositionExpression(expression);
             animation.InsertExpressionKeyFrame(normalizedProgressKey, result.Expression, easingFunction);

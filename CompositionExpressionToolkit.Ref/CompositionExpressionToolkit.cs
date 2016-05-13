@@ -2,8 +2,7 @@ namespace CompositionExpressionToolkit
 {
     public static partial class CompositionAnimationExtensions
     {
-        public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.KeyFrameAnimation); }
-        public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression, Windows.UI.Composition.CompositionEasingFunction easingFunction) { return default(Windows.UI.Composition.KeyFrameAnimation); }
+        public static Windows.UI.Composition.KeyFrameAnimation InsertExpressionKeyFrame<T>(this Windows.UI.Composition.KeyFrameAnimation animation, float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression, Windows.UI.Composition.CompositionEasingFunction easingFunction=null) { return default(Windows.UI.Composition.KeyFrameAnimation); }
         public static System.Collections.Generic.Dictionary<string, object> SetExpression<T>(this Windows.UI.Composition.ExpressionAnimation animation, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(System.Collections.Generic.Dictionary<string, object>); }
         public static bool SetParameter<T>(this T animation, string key, object input) where T : Windows.UI.Composition.CompositionAnimation { return default(bool); }
         public static T SetParameters<T>(this T animation, System.Collections.Generic.Dictionary<string, object> parameters) where T : Windows.UI.Composition.CompositionAnimation { return default(T); }
@@ -113,10 +112,40 @@ namespace CompositionExpressionToolkit
     {
         public static Windows.UI.Composition.CompositionEffectFactory CreateEffectFactory(this Windows.UI.Composition.Compositor compositor, Windows.Graphics.Effects.IGraphicsEffect graphicsEffect, params System.Linq.Expressions.Expression<System.Func<object>>[] animatablePropertyExpressions) { return default(Windows.UI.Composition.CompositionEffectFactory); }
         public static Windows.UI.Composition.ExpressionAnimation CreateExpressionAnimation<T>(this Windows.UI.Composition.Compositor compositor, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.ExpressionAnimation); }
+        public static CompositionExpressionToolkit.KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Windows.UI.Composition.Compositor compositor) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
     }
     public static partial class DoubleExtensions
     {
         public static float Single(this double value) { return default(float); }
+    }
+    public sealed partial class KeyFrame<T>
+    {
+        public KeyFrame(float normalizedProgressKey, T value, Windows.UI.Composition.CompositionEasingFunction easing=null) { }
+        public Windows.UI.Composition.CompositionEasingFunction Easing { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(Windows.UI.Composition.CompositionEasingFunction); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
+        public float Key { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(float); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
+        public T Value { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(T); } [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { } }
+    }
+    public sealed partial class KeyFrameAnimation<T>
+    {
+        public KeyFrameAnimation(Windows.UI.Composition.KeyFrameAnimation animation) { }
+        public Windows.UI.Composition.KeyFrameAnimation Animation { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { return default(Windows.UI.Composition.KeyFrameAnimation); } }
+        public System.TimeSpan DelayTime { get { return default(System.TimeSpan); } set { } }
+        public Windows.UI.Composition.AnimationDirection Direction { get { return default(Windows.UI.Composition.AnimationDirection); } set { } }
+        public System.TimeSpan Duration { get { return default(System.TimeSpan); } set { } }
+        public Windows.UI.Composition.AnimationIterationBehavior IterationBehavior { get { return default(Windows.UI.Composition.AnimationIterationBehavior); } set { } }
+        public int IterationCount { get { return default(int); } set { } }
+        public int KeyFrameCount { get { return default(int); } }
+        public Windows.UI.Composition.AnimationStopBehavior StopBehavior { get { return default(Windows.UI.Composition.AnimationStopBehavior); } set { } }
+        public CompositionExpressionToolkit.KeyFrameAnimation<T> DelayBy(System.TimeSpan delayTime) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public CompositionExpressionToolkit.KeyFrameAnimation<T> HavingDuration(System.TimeSpan duration) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public void InsertExpressionKeyFrame(float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression, Windows.UI.Composition.CompositionEasingFunction easingFunction=null) { }
+        public void InsertKeyFrame(CompositionExpressionToolkit.KeyFrame<T> keyFrame) { }
+        public void InsertKeyFrame(float normalizedProgressKey, T value, Windows.UI.Composition.CompositionEasingFunction easingFunction=null) { }
+        public void InsertKeyFrames(params CompositionExpressionToolkit.KeyFrame<T>[] keyFrames) { }
+        public CompositionExpressionToolkit.KeyFrameAnimation<T> InTheDirection(Windows.UI.Composition.AnimationDirection direction) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public CompositionExpressionToolkit.KeyFrameAnimation<T> OnStop(Windows.UI.Composition.AnimationStopBehavior stopBehavior) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public CompositionExpressionToolkit.KeyFrameAnimation<T> Repeats(int count) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public CompositionExpressionToolkit.KeyFrameAnimation<T> RepeatsForever() { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
     }
     public static partial class ScopedBatchHelper
     {
