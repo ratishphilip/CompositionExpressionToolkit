@@ -430,7 +430,7 @@ enterAnimation.DelayTime = TimeSpan.FromMilliseconds(500);
 enterAnimation.Duration = TimeSpan.FromMilliseconds(5000);
 enterAnimation.IterationBehavior = AnimationIterationBehavior.Forever;
 
-spriteVisual.StartAnimation("Scale", enterAnimation);
+spriteVisual.StartAnimation("Scale.XY", enterAnimation);
 
 var exitAnimation = _compositor.CreateVector2KeyFrameAnimation();
 exitAnimation.InsertKeyFrame(1.0f, new Vector2(0, 0));
