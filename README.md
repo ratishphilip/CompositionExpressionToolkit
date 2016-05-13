@@ -474,6 +474,8 @@ exitAnimation.InsertKeyFrame(1.0f, new Vector2(0, 0));
 spriteVisual2.StartAnimation(() => spriteVisual2.Offset, exitAnimation.Animation);
 ```
 
+**NOTE:** _While using **KeyFrameAnimation&lt;T&gt;**, whenever you call the **StartAnimation** or **StopAnimation** method on any object deriving from *CompositionObject*, make sure that you pass the **Animation** property of **KeyFrameAnimation&lt;T&gt;** object as an argument. (If you provide the **KeyFrameAnimation&lt;T&gt;** object as argument, **it will not compile!**)_
+
 ## 8. ScopedBatchHelper
 
 This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the subscribing and unsubscribing process of the **Completed** event internally.
