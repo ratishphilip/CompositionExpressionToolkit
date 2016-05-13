@@ -8,15 +8,15 @@ __CompositionExpressionToolkit__ is a collection of Extension methods and Helper
 
 ## Table of Contents
 
-- [CompositionPropertySet extensions](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#1-compositionpropertyset-extensions)
-- [Creating statically typed CompositionAnimation Expressions](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#2-creating-statically-typed-compositionanimation-expressions)
-- [Using Lambda Expressions for StartAnimation & StopAnimation](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#3-using-lambda-expressions-for-startanimation--stopanimation)
-- [Using Arrays within Lambda Expression for defining animations](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#4-using-arrays-within-lambda-expression-for-defining-animations)
-- [Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#5-using-lambda-expression-for-creating-effectfactory-and-animating-compositioneffectbrushes)
-- [KeyFrame&lt;T&gt;](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#6-keyframet)
-- [KeyFrameAnimation&lt;T&gt;](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#7-keyframeanimationt)
+- [CompositionPropertySet extensions](#1-compositionpropertyset-extensions)
+- [Creating statically typed CompositionAnimation Expressions](#2-creating-statically-typed-compositionanimation-expressions)
+- [Using Lambda Expressions for StartAnimation & StopAnimation](#3-using-lambda-expressions-for-startanimation--stopanimation)
+- [Using Arrays within Lambda Expression for defining animations](#4-using-arrays-within-lambda-expression-for-defining-animations)
+- [Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes](#5-using-lambda-expression-for-creating-effectfactory-and-animating-compositioneffectbrushes)
+- [KeyFrame&lt;T&gt;](#6-keyframet)
+- [KeyFrameAnimation&lt;T&gt;](#7-keyframeanimationt)
 - [ScopedBatchHelper](#8-scopedbatchhelper)
-- [Converting from `double` to `float`](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#9-converting-from-double-to-float)
+- [Converting from `double` to `float`](#9-converting-from-double-to-float)
 
 
 ## 1. CompositionPropertySet extensions
