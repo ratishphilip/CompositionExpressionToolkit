@@ -4,6 +4,19 @@
 
 __CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.aspx">Windows.UI.Composition</a> features. They include methods for creating statically typed **CompositionAnimation** expressions, **CompositionPropertySet** extension methods, helper methods for creating **ScopedBatchSets** etc.
 
+# Table of Contents
+
+- [CompositionPropertySet extensions](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#1-compositionpropertyset-extensions)
+- [Creating statically typed CompositionAnimation Expressions](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#2-creating-statically-typed-compositionanimation-expressions)
+- [Using Lambda Expressions for StartAnimation & StopAnimation](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#3-using-lambda-expressions-for-startanimation--stopanimation)
+- [Using Arrays within Lambda Expression for defining animations](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#4-using-arrays-within-lambda-expression-for-defining-animations)
+- [Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#5-using-lambda-expression-for-creating-effectfactory-and-animating-compositioneffectbrushes)
+- [KeyFrame&lt;T&gt;](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#6-keyframet)
+- [KeyFrameAnimation&lt;T&gt;](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#7-keyframeanimationt)
+- [ScopedBatchHelper](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#8-scopedbatchhelper)
+- [Converting from `double` to `float`](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#9-converting-from-double-to-float)
+
+
 # CompositionExpressionToolkit Internals
 
 ## 1. CompositionPropertySet extensions
