@@ -327,7 +327,133 @@ brush.StartAnimation(() => ((Transform2DEffect)_graphicsEffect.Source2).Transfor
 						_transformExpression);
 ```
 
-## 6. ScopedBatchHelper
+## 6. KeyFrame&lt;T&gt;
+**KeyFrame&lt;T&gt;** is a generic class which encapsulates the values required to define a KeyFrame within a **KeyFrameAnimation**. It has the following properties
+
+| Property | Type | Description |
+|---|---|---|
+| **Key** | `float` | The time the key frame should occur at, expressed as a percentage of the animation Duration. Allowed value is from 0.0 to 1.0. |
+| **Value** | `T` | The expression used to calculate the value of the KeyFrame. |
+| **Easing** | `CompositionEasingFunction` | The easing function to use when interpolating between frames. |
+
+## 7. KeyFrameAnimation&lt;T&gt;
+
+According to [MSDN](https://msdn.microsoft.com/en-us/windows/uwp/graphics/composition-animation), KeyFrame Animations are time-based animations that use one or more key frames to specify how the animated value should change over time. The frames represent markers, allowing you to define what the animated value should be at a specific time. To construct a KeyFrame Animation, use one of the constructor methods of the **Compositor** class that correlates to the structure type of the property you wish to animate.
+
+- **CreateColorKeyFrameAnimation**
+- **CreateQuaternionKeyFrameAnimation**
+- **CreateScalarKeyFrameAnimation**
+- **CreateVector2KeyFrameAnimation**
+- **CreateVector3KeyFrameAnimation**
+- **CreateVector4KeyFrameAnimation**
+
+**KeyFrameAnimation&lt;T&gt;** is a generic class which encapsulates a **KeyFrameAnimation** object and provides a unified set of properties and methods which cater to the various animation classes deriving from **KeyFrameAnimation**.
+
+### Properties
+
+| Property | Type | Description |
+|---|---|---|
+| **Animation** | `KeyFrameAnimation` | The encapsulated KeyFrameAnimation object. |
+| **DelayTime** | `TimeSpan` | The duration by which the animation should be delayed |
+| **Direction** | `AnimationDirection` | Direction of the Animation |
+| **Duration** | `TimeSpan` | The duration of the animation. Minimum allowed value is 1ms and maximum allowed value is 24 days. |
+| **IterationBehavior** | `AnimationIterationBehavior` | The iteration behavior for the key frame animation. |
+| **IterationCount** | `int` | The number of times to repeat the key frame animation. A value of -1 causes the animation to repeat indefinitely.|
+| **KeyFrameCount** | `int` | The number of key frames in the KeyFrameAnimation. |
+| **StopBehavior** | `AnimationStopBehavior` | Specifies how to set the property value when StopAnimation is called. |
+
+
+### APIs
+The following APIs facilitate the setting of keyframe(s) on the encapsulated **KeyFrameAnimation** object.
+
+```C#
+public void InsertKeyFrame(float normalizedProgressKey, T value, 
+				 	    CompositionEasingFunction easingFunction = null);
+public void InsertKeyFrame(KeyFrame<T> keyFrame)
+public void InsertKeyFrames(params KeyFrame<T>[] keyFrames)
+public void InsertExpressionKeyFrame(float normalizedProgressKey, Expression<CompositionLambda<T>> expression,
+                                     CompositionEasingFunction easingFunction = null)
+```
+
+### Chaining APIs
+The following APIs help you to set the properties of the encapsulated **KeyFrameAnimation** object. These method return the **KeyFrameAnimation&lt;T&gt;** objects itself (on which these methods are called), thus allowing these methods to be *chained*.
+
+
+```C#
+// Sets the Animation Direction of encapsulated KeyFrameAnimation object.
+public KeyFrameAnimation<T> InTheDirection(AnimationDirection direction);
+
+// Sets the duration by which the animation, defined by
+public KeyFrameAnimation<T> DelayBy(TimeSpan delayTime);
+
+// Sets the animation Duration of encapsulated KeyFrameAnimation object.
+public KeyFrameAnimation<T> HavingDuration(TimeSpan duration);
+
+// Sets the number of times the animation, defined by the encapsulated
+// KeyFrameAnimation object, should be repeated.
+public KeyFrameAnimation<T> Repeats(int count);
+
+// Causes the animation defined by the encapsulated KeyFrameAnimation
+// object to repeat indefinitely
+public KeyFrameAnimation<T> RepeatsForever();
+
+// Specifies how to set the property value when StopAnimation is called on
+// the encapsulated KeyFrameAnimation object.
+public KeyFrameAnimation<T> OnStop(AnimationStopBehavior stopBehavior);
+```
+
+### Example
+
+**Without using CompositionExpressionToolkit**
+```C#
+CubicBezierEasingFunction easeIn = _compositor.CreateCubicBezierEasingFunction(new Vector2(0.0f, 0.51f), 
+                                                                               new Vector2(1.0f, 0.51f));
+                                                                               
+var enterAnimation = _compositor.CreateScalarKeyFrameAnimation();
+enterAnimation.InsertKeyFrame(0.33f, 1.25f, easeIn);
+enterAnimation.InsertKeyFrame(0.66f, 0.75f, easeIn);
+enterAnimation.InsertKeyFrame(1.0f, 1.0f, easeIn);
+enterAnimation.DelayTime = TimeSpan.FromMilliseconds(500);
+enterAnimation.Duration = TimeSpan.FromMilliseconds(5000);
+enterAnimation.IterationBehavior = AnimationIterationBehavior.Forever;
+
+spriteVisual.StartAnimation("Scale", enterAnimation);
+
+var exitAnimation = _compositor.CreateVector2KeyFrameAnimation();
+exitAnimation.InsertKeyFrame(1.0f, new Vector2(0, 0));
+exitAnimation.Duration = TimeSpan.FromMilliseconds(750);
+exitAnimation.IterationBehavior = AnimationIterationBehavior.Count;
+exitAnimation.IterationCount = 1;
+
+spriteVisual2.StartAnimation("Offset", exitAnimation);
+```
+
+**Using CompositionExpressionToolkit**
+```C#
+CubicBezierEasingFunction easeIn = _compositor.CreateCubicBezierEasingFunction(new Vector2(0.0f, 0.51f), 
+                                                                               new Vector2(1.0f, 0.51f));
+
+var enterAnimation =_compositor.CreateKeyFrameAnimation<float>()
+                               .HavingDuration(TimeSpan.FromSeconds(5))
+                               .DelayBy(TimeSpan.FromMilliseconds(500))
+                               .RepeatsForever();
+
+enterAnimation.InsertKeyFrames(new KeyFrame<float>(0.33f, 1.25f, easeIn), 
+                               new KeyFrame<float>(0.66f, 0.75f, easeIn), 
+                               new KeyFrame<float>(1.0f, 1.0f, easeIn));
+                               
+spriteVisual.StartAnimation(() => spriteVisual.ScaleXY(), enterAnimation.Animation);
+
+var exitAnimation = _compositor.CreateKeyFrameAnimation<Vector2>()
+                               .HavingDuration(TimeSpan.FromMilliseconds(750))
+                               .Repeats(1);
+
+exitAnimation.InsertKeyFrame(1.0f, new Vector2(0, 0));
+
+spriteVisual2.StartAnimation(() => spriteVisual2.Offset, exitAnimation.Animation);
+```
+
+## 8. ScopedBatchHelper
 
 This class contains a static method **CreateScopedBatch** creates a scoped batch and handles the subscribing and unsubscribing process of the **Completed** event internally.
 
@@ -352,7 +478,7 @@ ScopedBatchHelper.CreateScopedBatch(_compositor, CompositionBatchTypes.Animation
            BackBtn.IsEnabled = true;
        });
 ```
-## 6. Converting from `double` to `float`
+## 9. Converting from `double` to `float`
 Most of the values which is calculated or derived from the properties of **UIElement** (and its derived classes) are of type **double**. But most of the classes in **Sytem.Numerics** and **Windows.UI.Composition** namespaces require the values to be of type **float**. If you find it tedious adding a `(float)` cast before each and every variable of type **double**, you can call the **.Single** extension method for **System.Double** instead, which converts the **double** into **float**. Ensure that the value of the double variable is between **System.Single.MinValue** and **System.Single.MaxValue** otherwise **ArgumentOutOfRangeException** will be thrown.  
 
 **Note**: _Conversion of a value from **double** to **float** will reduce the precision of the value._  
