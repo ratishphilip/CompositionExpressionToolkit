@@ -4,7 +4,9 @@
 
 __CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.aspx">Windows.UI.Composition</a> features. They include methods for creating statically typed **CompositionAnimation** expressions, **CompositionPropertySet** extension methods, helper methods for creating **ScopedBatchSets** etc.
 
-# Table of Contents
+# CompositionExpressionToolkit Internals
+
+## Table of Contents
 
 - [CompositionPropertySet extensions](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#1-compositionpropertyset-extensions)
 - [Creating statically typed CompositionAnimation Expressions](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#2-creating-statically-typed-compositionanimation-expressions)
@@ -16,8 +18,6 @@ __CompositionExpressionToolkit__ is a collection of Extension methods and Helper
 - [ScopedBatchHelper](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#8-scopedbatchhelper)
 - [Converting from `double` to `float`](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#9-converting-from-double-to-float)
 
-
-# CompositionExpressionToolkit Internals
 
 ## 1. CompositionPropertySet extensions
 The <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.compositionpropertyset.aspx">__CompositionPropertySet__</a> class is like a dictionary which stores key-value pairs. As of now, the values can be of type __bool__, __float__, __Color__, __Matrix3x2__, __Matrix4x4__, __Quaternion__, __Scalar__, __Vector2__, __Vector3__ and __Vector4__. To store and retrieve, __CompositionPropertySet__ has separate __Insert*xxx*__ and __TryGet*xxx*__ methods for each type.  
