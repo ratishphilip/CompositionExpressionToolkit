@@ -4,7 +4,7 @@
 
 __CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.aspx">Windows.UI.Composition</a> features. They include methods for creating statically typed **CompositionAnimation** expressions, **CompositionPropertySet** extension methods, helper methods for creating **ScopedBatchSets** etc.
 
-## Table of Contents
+# Table of Contents
 
 - [CompositionExpressionToolkit Internals](#compositionexpressiontoolkit-internals)
   - [CompositionPropertySet extensions](#1-compositionpropertyset-extensions)
