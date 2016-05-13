@@ -41,13 +41,10 @@ public static ExpressionAnimation CreateExpressionAnimation<T>(this Compositor c
             
 public static Dictionary<string, object> SetExpression<T>(this ExpressionAnimation animation,
 			Expression<CompositionLambda<T>> expression);
-
-public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, 
-	float normalizedProgressKey, Expression<CompositionLambda<T>> expression);
 	
 public static KeyFrameAnimation InsertExpressionKeyFrame<T>(this KeyFrameAnimation animation, 
 	float normalizedProgressKey, 
-	Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction);
+	Expression<CompositionLambda<T>> expression, CompositionEasingFunction easingFunction = null);
 ```
 
 Each of these methods have a parameter of type **Expression&lt;CompositionLambda&lt;T&gt;&gt;** which defines the actual lambda expression. These extension methods parse the lambda expression and convert them to appropriate mathematical expression string and link to the symbols used in the lambda expression by calling the appropriate __Set*xxx*Parameter__ internally.  
@@ -281,7 +278,12 @@ private void ConfigureGearAnimation(int current, int previous)
 }
 ```
 ## 5. Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes
-You can use lambda expressions to create EffectFactory and animate CompositionEffectBrushes.
+You can use lambda expressions to specify the animatable properties while creating the EffectFactory and to animate CompositionEffectBrushes. The following extension method is defined for the **Compositor** for creating the EffectFactory
+
+```C#
+public static CompositionEffectFactory CreateEffectFactory(this Compositor compositor,
+            IGraphicsEffect graphicsEffect, params Expression<Func<object>>[] animatablePropertyExpressions);
+```
 
 ### Example
 
@@ -413,6 +415,12 @@ public KeyFrameAnimation<T> RepeatsForever();
 // Specifies how to set the property value when StopAnimation is called on
 // the encapsulated KeyFrameAnimation object.
 public KeyFrameAnimation<T> OnStop(AnimationStopBehavior stopBehavior);
+```
+
+The following extension method is defined for the **Compositor** to create a **KeyFrameAnimation&lt;T&gt;** object
+
+```C#
+public static KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Compositor compositor);
 ```
 
 ### Example
