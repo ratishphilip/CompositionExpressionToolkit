@@ -6,7 +6,7 @@ __CompositionExpressionToolkit__ is a collection of Extension methods and Helper
 
 ## Table of Contents
 
-- CompositionExpressionToolkit Internals
+- [CompositionExpressionToolkit Internals](#compositionexpressiontoolkit-internals)
   - [CompositionPropertySet extensions](#1-compositionpropertyset-extensions)
   - [Creating statically typed CompositionAnimation Expressions](#2-creating-statically-typed-compositionanimation-expressions)
   - [Using Lambda Expressions for StartAnimation & StopAnimation](#3-using-lambda-expressions-for-startanimation--stopanimation)
