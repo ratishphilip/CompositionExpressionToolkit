@@ -15,7 +15,7 @@ __CompositionExpressionToolkit__ is a collection of Extension methods and Helper
 - [Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#5-using-lambda-expression-for-creating-effectfactory-and-animating-compositioneffectbrushes)
 - [KeyFrame&lt;T&gt;](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#6-keyframet)
 - [KeyFrameAnimation&lt;T&gt;](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#7-keyframeanimationt)
-- [ScopedBatchHelper](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#8-scopedbatchhelper)
+- [ScopedBatchHelper](#8-scopedbatchhelper)
 - [Converting from `double` to `float`](https://github.com/ratishphilip/CompositionExpressionToolkit/blob/master/README.md#9-converting-from-double-to-float)
 
 
