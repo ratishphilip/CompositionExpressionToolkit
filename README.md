@@ -4,20 +4,22 @@
 
 __CompositionExpressionToolkit__ is a collection of Extension methods and Helper classes which make it easier to use <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.aspx">Windows.UI.Composition</a> features. They include methods for creating statically typed **CompositionAnimation** expressions, **CompositionPropertySet** extension methods, helper methods for creating **ScopedBatchSets** etc.
 
-# CompositionExpressionToolkit Internals
-
 ## Table of Contents
 
-- [CompositionPropertySet extensions](#1-compositionpropertyset-extensions)
-- [Creating statically typed CompositionAnimation Expressions](#2-creating-statically-typed-compositionanimation-expressions)
-- [Using Lambda Expressions for StartAnimation & StopAnimation](#3-using-lambda-expressions-for-startanimation--stopanimation)
-- [Using Arrays within Lambda Expression for defining animations](#4-using-arrays-within-lambda-expression-for-defining-animations)
-- [Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes](#5-using-lambda-expression-for-creating-effectfactory-and-animating-compositioneffectbrushes)
-- [KeyFrame&lt;T&gt;](#6-keyframet)
-- [KeyFrameAnimation&lt;T&gt;](#7-keyframeanimationt)
-- [ScopedBatchHelper](#8-scopedbatchhelper)
-- [Converting from `double` to `float`](#9-converting-from-double-to-float)
+- CompositionExpressionToolkit Internals
+  - [CompositionPropertySet extensions](#1-compositionpropertyset-extensions)
+  - [Creating statically typed CompositionAnimation Expressions](#2-creating-statically-typed-compositionanimation-expressions)
+  - [Using Lambda Expressions for StartAnimation & StopAnimation](#3-using-lambda-expressions-for-startanimation--stopanimation)
+  - [Using Arrays within Lambda Expression for defining animations](#4-using-arrays-within-lambda-expression-for-defining-animations)
+  - [Using Lambda Expression for creating EffectFactory and animating CompositionEffectBrushes](#5-using-lambda-expression-for-creating-effectfactory-and-animating-compositioneffectbrushes)
+  - [KeyFrame&lt;T&gt;](#6-keyframet)
+  - [KeyFrameAnimation&lt;T&gt;](#7-keyframeanimationt)
+  - [ScopedBatchHelper](#8-scopedbatchhelper)
+  - [Converting from `double` to `float`](#9-converting-from-double-to-float)
+- [Installing from NuGet](#installing-from-nuget)
+- [Credits](#credits)
 
+# CompositionExpressionToolkit Internals
 
 ## 1. CompositionPropertySet extensions
 The <a href="https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.composition.compositionpropertyset.aspx">__CompositionPropertySet__</a> class is like a dictionary which stores key-value pairs. As of now, the values can be of type __bool__, __float__, __Color__, __Matrix3x2__, __Matrix4x4__, __Quaternion__, __Scalar__, __Vector2__, __Vector3__ and __Vector4__. To store and retrieve, __CompositionPropertySet__ has separate __Insert*xxx*__ and __TryGet*xxx*__ methods for each type.  
