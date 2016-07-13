@@ -136,7 +136,9 @@ namespace CompositionExpressionToolkit
         public int IterationCount { get { return default(int); } set { } }
         public int KeyFrameCount { get { return default(int); } }
         public Windows.UI.Composition.AnimationStopBehavior StopBehavior { get { return default(Windows.UI.Composition.AnimationStopBehavior); } set { } }
+        public string Target { get { return default(string); } set { } }
         public CompositionExpressionToolkit.KeyFrameAnimation<T> DelayBy(System.TimeSpan delayTime) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public CompositionExpressionToolkit.KeyFrameAnimation<T> ForTarget(System.Linq.Expressions.Expression<System.Func<object>> targetExpression) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
         public CompositionExpressionToolkit.KeyFrameAnimation<T> HavingDuration(System.TimeSpan duration) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
         public void InsertExpressionKeyFrame(float normalizedProgressKey, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression, Windows.UI.Composition.CompositionEasingFunction easingFunction=null) { }
         public void InsertKeyFrame(CompositionExpressionToolkit.KeyFrame<T> keyFrame) { }

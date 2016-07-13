@@ -184,6 +184,15 @@ namespace CompositionExpressionToolkit
             set { Animation.StopBehavior = value; }
         }
 
+        /// <summary>
+        /// Specifies the target for the animation
+        /// </summary>
+        public string Target
+        {
+            get { return Animation.Target; }
+            set { Animation.Target = value; }
+        }
+
         #endregion
 
         #region Construction / Initialization
@@ -333,6 +342,17 @@ namespace CompositionExpressionToolkit
         public KeyFrameAnimation<T> OnStop(AnimationStopBehavior stopBehavior)
         {
             Animation.StopBehavior = stopBehavior;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the target for the encapsulated KeyFrameAnimation object
+        /// </summary>
+        /// <param name="targetExpression">Expression for the target</param>
+        /// <returns>KeyFrameAnimation&lt;T&gt;</returns>
+        public KeyFrameAnimation<T> ForTarget(Expression<Func<object>> targetExpression)
+        {
+            Animation.Target = CompositionExpressionEngine.ParseExpression(targetExpression);
             return this;
         }
 

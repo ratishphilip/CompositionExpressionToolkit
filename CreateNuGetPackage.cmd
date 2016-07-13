@@ -30,6 +30,6 @@
 @echo.
 @echo ===== Creating NuGet package =====
 @echo.
-@NuGet\nuget.exe pack NuGet\CompositionExpressionToolkit.nuspec
+@nuget.exe pack NuGet\CompositionExpressionToolkit.nuspec
 
 @popd
