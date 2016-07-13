@@ -380,6 +380,7 @@ According to [MSDN](https://msdn.microsoft.com/en-us/windows/uwp/graphics/compos
 | **IterationCount** | `int` | The number of times to repeat the key frame animation. A value of -1 causes the animation to repeat indefinitely.|
 | **KeyFrameCount** | `int` | The number of key frames in the KeyFrameAnimation. |
 | **StopBehavior** | `AnimationStopBehavior` | Specifies how to set the property value when StopAnimation is called. |
+| **Target** | `String` | Specifies the target for the animation. |
 
 
 ### APIs
@@ -419,6 +420,9 @@ public KeyFrameAnimation<T> RepeatsForever();
 // Specifies how to set the property value when StopAnimation is called on
 // the encapsulated KeyFrameAnimation object.
 public KeyFrameAnimation<T> OnStop(AnimationStopBehavior stopBehavior);
+
+// Sets the target for the encapsulated KeyFrameAnimation object
+public KeyFrameAnimation<T> ForTarget(Expression<Func<object>> targetExpression);
 ```
 
 The following extension method is defined for the **Compositor** to create a **KeyFrameAnimation&lt;T&gt;** object
@@ -434,6 +438,7 @@ public static KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Compositor co
 CubicBezierEasingFunction easeIn = _compositor.CreateCubicBezierEasingFunction(new Vector2(0.0f, 0.51f), 
                                                                                new Vector2(1.0f, 0.51f));
                                                                                
+// Example 1
 var enterAnimation = _compositor.CreateScalarKeyFrameAnimation();
 enterAnimation.InsertKeyFrame(0.33f, 1.25f, easeIn);
 enterAnimation.InsertKeyFrame(0.66f, 0.75f, easeIn);
@@ -444,6 +449,7 @@ enterAnimation.IterationBehavior = AnimationIterationBehavior.Forever;
 
 spriteVisual.StartAnimation("Scale.XY", enterAnimation);
 
+// Example 2
 var exitAnimation = _compositor.CreateVector2KeyFrameAnimation();
 exitAnimation.InsertKeyFrame(1.0f, new Vector2(0, 0));
 exitAnimation.Duration = TimeSpan.FromMilliseconds(750);
@@ -451,6 +457,17 @@ exitAnimation.IterationBehavior = AnimationIterationBehavior.Count;
 exitAnimation.IterationCount = 1;
 
 spriteVisual2.StartAnimation("Offset", exitAnimation);
+
+// Example 3 - ImplicitAnimations
+var offsetAnimation = _compositor.CreateVector3KeyFrameAnimation();
+offsetAnimation.Target = "Offset";
+offsetAnimation.InsertExpressionKeyFrame(1f, "this.FinalValue");
+offsetAnimation.Duration = TimeSpan.FromMilliseconds(500);
+
+var implicitAnimationCollection = _compositor.CreateImplicitAnimationCollection();
+implicitAnimationCollection["Offset"] = offsetAnimation;
+
+spriteVisual3.ImplicitAnimations = implicitAnimationCollection;
 ```
 
 **Using CompositionExpressionToolkit**
@@ -458,6 +475,7 @@ spriteVisual2.StartAnimation("Offset", exitAnimation);
 CubicBezierEasingFunction easeIn = _compositor.CreateCubicBezierEasingFunction(new Vector2(0.0f, 0.51f), 
                                                                                new Vector2(1.0f, 0.51f));
 
+// Example 1
 var enterAnimation =_compositor.CreateKeyFrameAnimation<float>()
                                .HavingDuration(TimeSpan.FromSeconds(5))
                                .DelayBy(TimeSpan.FromMilliseconds(500))
@@ -469,6 +487,7 @@ enterAnimation.InsertKeyFrames(new KeyFrame<float>(0.33f, 1.25f, easeIn),
                                
 spriteVisual.StartAnimation(() => spriteVisual.ScaleXY(), enterAnimation.Animation);
 
+// Example 2
 var exitAnimation = _compositor.CreateKeyFrameAnimation<Vector2>()
                                .HavingDuration(TimeSpan.FromMilliseconds(750))
                                .Repeats(1);
@@ -476,6 +495,19 @@ var exitAnimation = _compositor.CreateKeyFrameAnimation<Vector2>()
 exitAnimation.InsertKeyFrame(1.0f, new Vector2(0, 0));
 
 spriteVisual2.StartAnimation(() => spriteVisual2.Offset, exitAnimation.Animation);
+
+// Example 3 - ImplicitAnimations
+Expression<CompositionLambda<Vector3>> vector3Expr = c => c.FinalValue;
+var offsetAnimation = _compositor.CreateKeyFrameAnimation<Vector3>()
+                                 .HavingDuration(TimeSpan.FromMilliseconds(500))
+                                 .ForTarget(() => spriteVisual3.Offset);
+                                 
+offsetAnimation.InsertExpressionKeyFrame(1f, vector3Expr);
+
+var implicitAnimationCollection = _compositor.CreateImplicitAnimationCollection();
+implicitAnimationCollection["Offset"] = offsetAnimation.Animation;
+
+spriteVisual3.ImplicitAnimations = implicitAnimationCollection;
 ```
 
 **NOTE:** _While using **KeyFrameAnimation&lt;T&gt;**, whenever you call the **StartAnimation** or **StopAnimation** method on any object deriving from **CompositionObject**, make sure that you pass the **Animation** property of **KeyFrameAnimation&lt;T&gt;** object as an argument. (If you provide the **KeyFrameAnimation&lt;T&gt;** object as argument, **it will not compile!**)_
