@@ -55,5 +55,30 @@ namespace CompositionExpressionToolkit
         {
             return new KeyFrameAnimation<T>(KeyFrameAnimationHelper.CreateAnimation<T>(compositor));
         }
+
+        /// <summary>
+        /// Creates a CompositionLambda expression for 'c =&gt; c.StartingValue' for the given type
+        /// </summary>
+        /// <typeparam name="T">Type of the CompositionLambda Expression</typeparam>
+        /// <param name="compositor">Compositor</param>
+        /// <returns>Expression&lt;CompositionLambda&lt;T&gt;&gt;</returns>
+        public static Expression<CompositionLambda<T>> CreateStartingValueExpression<T>(this Compositor compositor)
+        {
+            Expression<CompositionLambda<T>> expression = c => c.StartingValue;
+            return expression;
+        }
+
+        /// <summary>
+        /// Creates a CompositionLambda expression for 'c =&gt; c.FinalValue' for the given type
+        /// </summary>
+        /// <typeparam name="T">Type of the CompositionLambda Expression</typeparam>
+        /// <param name="compositor">Compositor</param>
+        /// <returns>Expression&lt;CompositionLambda&lt;T&gt;&gt;</returns>
+        public static Expression<CompositionLambda<T>> CreateFinalValueExpression<T>(this Compositor compositor)
+        {
+            Expression<CompositionLambda<T>> expression = c => c.FinalValue;
+            return expression;
+        }
+
     }
 }

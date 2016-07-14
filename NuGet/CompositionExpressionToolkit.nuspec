@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CompositionExpressionToolkit</id>
-    <version>0.2.2.0</version>
+    <version>0.2.3.0</version>
     <title>CompositionExpressionToolkit</title>
     <authors>Ratish Philip</authors>
     <owners>Ratish Philip</owners>
@@ -11,7 +11,7 @@
     <iconUrl>https://cloud.githubusercontent.com/assets/7021835/15062082/66ee5d20-12f1-11e6-9cd0-e4ba150f6161.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Toolkit containing a collection of Extension methods and Helper classes which make it easier to use Windows.UI.Composition features.</description>
-    <releaseNotes>Added Target property and ForTarget method to KeyFrameAnimation&lt;T&gt; class. Reduced NuGet package size.</releaseNotes>
+    <releaseNotes>Added Extension methods to Compositor to create StartingValue and FinalValue Expressions.</releaseNotes>
     <copyright>Copyright 2016 Ratish Philip</copyright>
   </metadata>
 </package>

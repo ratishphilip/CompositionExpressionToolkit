@@ -112,7 +112,9 @@ namespace CompositionExpressionToolkit
     {
         public static Windows.UI.Composition.CompositionEffectFactory CreateEffectFactory(this Windows.UI.Composition.Compositor compositor, Windows.Graphics.Effects.IGraphicsEffect graphicsEffect, params System.Linq.Expressions.Expression<System.Func<object>>[] animatablePropertyExpressions) { return default(Windows.UI.Composition.CompositionEffectFactory); }
         public static Windows.UI.Composition.ExpressionAnimation CreateExpressionAnimation<T>(this Windows.UI.Composition.Compositor compositor, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.ExpressionAnimation); }
+        public static System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> CreateFinalValueExpression<T>(this Windows.UI.Composition.Compositor compositor) { return default(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>>); }
         public static CompositionExpressionToolkit.KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Windows.UI.Composition.Compositor compositor) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public static System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> CreateStartingValueExpression<T>(this Windows.UI.Composition.Compositor compositor) { return default(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>>); }
     }
     public static partial class DoubleExtensions
     {
