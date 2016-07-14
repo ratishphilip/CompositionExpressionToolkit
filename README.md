@@ -17,6 +17,7 @@ __CompositionExpressionToolkit__ is a collection of Extension methods and Helper
   - [ScopedBatchHelper](#8-scopedbatchhelper)
   - [Converting from `double` to `float`](#9-converting-from-double-to-float)
 - [Installing from NuGet](#installing-from-nuget)
+- [Updates Chronology](#updates-chronology)
 - [Credits](#credits)
 
 # CompositionExpressionToolkit Internals
@@ -428,7 +429,17 @@ public KeyFrameAnimation<T> ForTarget(Expression<Func<object>> targetExpression)
 The following extension method is defined for the **Compositor** to create a **KeyFrameAnimation&lt;T&gt;** object
 
 ```C#
+// Creates an instance of KeyFrameAnimation<T>
 public static KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Compositor compositor);
+```
+
+The following extension methods have been added to **Compositor** to create **StartingValue** and **FinalValue** Expressions.
+
+```C#
+// Creates a CompositionLambda expression for 'c => c.StartingValue' for the given type
+public static Expression<CompositionLambda<T>> CreateStartingValueExpression<T>(this Compositor compositor);
+// Creates a CompositionLambda expression for 'c => c.FinalValue' for the given type
+public static Expression<CompositionLambda<T>> CreateFinalValueExpression<T>(this Compositor compositor)
 ```
 
 ### Example
@@ -497,7 +508,7 @@ exitAnimation.InsertKeyFrame(1.0f, new Vector2(0, 0));
 spriteVisual2.StartAnimation(() => spriteVisual2.Offset, exitAnimation.Animation);
 
 // Example 3 - ImplicitAnimations
-Expression<CompositionLambda<Vector3>> vector3Expr = c => c.FinalValue;
+var vector3Expr = _compositor.CreateFinalValueExpression<Vector3>();
 var offsetAnimation = _compositor.CreateKeyFrameAnimation<Vector3>()
                                  .HavingDuration(TimeSpan.FromMilliseconds(500))
                                  .ForTarget(() => spriteVisual3.Offset);
@@ -553,6 +564,20 @@ Vector2 size = new Vector2(width.Single(), height.Single());
 To install CompositionExpressionToolkit, run the following command in the  **Package Manager Console**  
 
 `Install-Package CompositionExpressionToolkit`
+
+# Updates Chronology
+
+## v0.2.3
+(**Thursday, July 14, 2016**) - Added Extension methods to`Compositor` to create **StartingValue** and **FinalValue** Expressions.
+
+## v0.2.2
+(**Wednesday, July 13, 2016**) - Added `Target` property and `ForTarget` method to `KeyFrameAnimation<T>` class. Reduced NuGet package size.
+
+## v0.2.1
+(**Friday, May 13, 2016**) - Added `KeyFrameAnimation<T>` - Generic class to encapsulate all the animation classes deriving from `KeyFrameAnimation`.
+
+## v0.2.0
+(**Monday, May 9, 2016**) - Added support for using Lambda Expressions in `CreateEffectFactory` method and animating `CompositionEffectBrush`.
 
 # Credits
 The **CompositionExpressionEngine** is based on the <a href="https://github.com/albahari/ExpressionFormatter">ExpressionFormatter</a> project by **Joseph Albahari** (*the legend behind the*  ***LinqPad*** *tool*). 
