@@ -567,6 +567,9 @@ To install CompositionExpressionToolkit, run the following command in the  **Pac
 
 # Updates Chronology
 
+## v0.2.4
+(**Friday, July 29, 2016**) - `CreateScopedBatch` method moved from ScopedBatchHelper and converter to `Compositor` Extension method.
+
 ## v0.2.3
 (**Thursday, July 14, 2016**) - Added Extension methods to`Compositor` to create **StartingValue** and **FinalValue** Expressions.
 
