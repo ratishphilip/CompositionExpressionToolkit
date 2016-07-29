@@ -114,6 +114,7 @@ namespace CompositionExpressionToolkit
         public static Windows.UI.Composition.ExpressionAnimation CreateExpressionAnimation<T>(this Windows.UI.Composition.Compositor compositor, System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> expression) { return default(Windows.UI.Composition.ExpressionAnimation); }
         public static System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> CreateFinalValueExpression<T>(this Windows.UI.Composition.Compositor compositor) { return default(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>>); }
         public static CompositionExpressionToolkit.KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Windows.UI.Composition.Compositor compositor) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
+        public static void CreateScopedBatch(this Windows.UI.Composition.Compositor compositor, Windows.UI.Composition.CompositionBatchTypes batchType, System.Action action, System.Action postAction=null) { }
         public static System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> CreateStartingValueExpression<T>(this Windows.UI.Composition.Compositor compositor) { return default(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>>); }
     }
     public static partial class DoubleExtensions
@@ -150,10 +151,6 @@ namespace CompositionExpressionToolkit
         public CompositionExpressionToolkit.KeyFrameAnimation<T> OnStop(Windows.UI.Composition.AnimationStopBehavior stopBehavior) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
         public CompositionExpressionToolkit.KeyFrameAnimation<T> Repeats(int count) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
         public CompositionExpressionToolkit.KeyFrameAnimation<T> RepeatsForever() { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
-    }
-    public static partial class ScopedBatchHelper
-    {
-        public static void CreateScopedBatch(Windows.UI.Composition.Compositor compositor, Windows.UI.Composition.CompositionBatchTypes batchType, System.Action action, System.Action postAction=null) { }
     }
     public static partial class TypeExtensions
     {
