@@ -115,6 +115,7 @@ namespace CompositionExpressionToolkit
         public static System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> CreateFinalValueExpression<T>(this Windows.UI.Composition.Compositor compositor) { return default(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>>); }
         public static CompositionExpressionToolkit.KeyFrameAnimation<T> CreateKeyFrameAnimation<T>(this Windows.UI.Composition.Compositor compositor) { return default(CompositionExpressionToolkit.KeyFrameAnimation<T>); }
         public static void CreateScopedBatch(this Windows.UI.Composition.Compositor compositor, Windows.UI.Composition.CompositionBatchTypes batchType, System.Action action, System.Action postAction=null) { }
+        public static void CreateScopedBatch(this Windows.UI.Composition.Compositor compositor, Windows.UI.Composition.CompositionBatchTypes batchType, System.Action<Windows.UI.Composition.CompositionScopedBatch> action, System.Action<Windows.UI.Composition.CompositionScopedBatch> postAction=null) { }
         public static System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>> CreateStartingValueExpression<T>(this Windows.UI.Composition.Compositor compositor) { return default(System.Linq.Expressions.Expression<CompositionExpressionToolkit.CompositionLambda<T>>); }
     }
     public static partial class DoubleExtensions

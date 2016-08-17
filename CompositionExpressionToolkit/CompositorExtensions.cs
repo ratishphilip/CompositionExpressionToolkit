@@ -1,4 +1,33 @@
-﻿using System;
+﻿// Copyright (c) 2016 Ratish Philip 
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal 
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions: 
+// 
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software. 
+// 
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE. 
+//
+// This file is part of the CompositionProToolkit project: 
+// https://github.com/ratishphilip/CompositionExpressionToolkit
+//
+// CompositionExpressionToolkit v0.2.4.2
+// 
+
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Windows.Foundation;
@@ -109,25 +138,96 @@ namespace CompositionExpressionToolkit
             // Create ScopedBatch
             var batch = compositor.CreateScopedBatch(batchType);
 
-            // Is there any action to be executed when the batch completes?
-            if (postAction != null)
+            // Handler for the Completed Event
+            TypedEventHandler<object, CompositionBatchCompletedEventArgs> handler = null;
+            handler = (s, ea) =>
             {
-                // Handler for the Completed Event
-                TypedEventHandler<object, CompositionBatchCompletedEventArgs> handler = null;
-                handler = (s, ea) =>
-                {
-                    // Unsubscribe the handler from the Completed Event
-                    batch.Completed -= handler;
-                    // Invoke the post action
-                    postAction();
-                };
+                var scopedBatch = s as CompositionScopedBatch;
 
-                // Subscribe to the Completed event
-                batch.Completed += handler;
-            }
+                // Unsubscribe the handler from the Completed event
+                if (scopedBatch != null)
+                {
+                    scopedBatch.Completed -= handler;
+                }
+
+                try
+                {
+                    // Invoke the post action
+                    postAction?.Invoke();
+                }
+                finally
+                {
+                    scopedBatch?.Dispose();
+                }
+            };
+
+            // Subscribe to the Completed event
+            batch.Completed += handler;
 
             // Invoke the action
             action();
+
+            // End Batch
+            batch.End();
+        }
+
+        /// <summary>
+        /// This extension method creates a scoped batch and handles the completed event
+        /// the subscribing and unsubscribing process internally.
+        /// 
+        /// Example usage:
+        /// _compositor.CreateScopedBatch(CompositionBatchTypes.Animation,
+        ///        (batch) => // Action
+        ///        {
+        ///            transitionVisual.StartAnimation("Scale.XY", _scaleUpAnimation);
+        ///        },
+        ///        (batch) => // Post Action
+        ///        {
+        ///            BackBtn.IsEnabled = true;
+        ///        });
+        /// 
+        /// </summary>
+        /// <param name="compositor">Compositor</param>
+        /// <param name="batchType">Composition Batch Type</param>
+        /// <param name="action">Action to perform within the scoped batch</param>
+        /// <param name="postAction">Action to perform once the batch completes</param>
+        public static void CreateScopedBatch(this Compositor compositor, CompositionBatchTypes batchType, 
+            Action<CompositionScopedBatch> action, Action<CompositionScopedBatch> postAction = null)
+        {
+            if (action == null)
+                throw new ArgumentException("Cannot create a scoped batch on an action with null value!", nameof(action));
+
+            // Create ScopedBatch
+            var batch = compositor.CreateScopedBatch(batchType);
+
+            // Handler for the Completed Event
+            TypedEventHandler<object, CompositionBatchCompletedEventArgs> handler = null;
+            handler = (s, ea) =>
+            {
+                var scopedBatch = s as CompositionScopedBatch;
+
+                // Unsubscribe the handler from the Completed event
+                if (scopedBatch != null)
+                {
+                    scopedBatch.Completed -= handler;
+                }
+
+                try
+                {
+                    // Invoke the post action
+                    postAction?.Invoke(scopedBatch);
+                }
+                finally
+                {
+                    scopedBatch?.Dispose();
+                }
+            };
+
+            // Subscribe to the Completed event
+            batch.Completed += handler;
+
+            // Invoke the action
+            action(batch);
 
             // End Batch
             batch.End();
